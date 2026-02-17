@@ -18,6 +18,7 @@ description: >-
 - **Confident**: Cut "almost", "very", "really", "quite", "arguably"
 - **Concrete**: Name the thing, state the number, cite the source
 - **Omit needless words**: "Because" not "due to the fact that"; "Now" not "at this point in time"; "Can" not "has the ability to"
+- **Use contractions**: "don't", "won't", "it's", "they're" — uncontracted forms are a major AI tell
 
 ## AI Patterns — Kill on Sight
 
@@ -53,14 +54,12 @@ description: >-
 
 ## Voice
 
-Removing AI patterns is half the job. Clean but soulless text is still obviously generated.
-
 - **Have opinions** — react to facts, don't just report them
 - **Vary rhythm** — short sentences, then longer ones. Mix it up.
 - **Acknowledge complexity** — "impressive but also unsettling" beats "impressive"
 - **Use first person when appropriate** — "I keep coming back to..." signals a real person
 - **Be specific about feelings** — not "this is concerning" but name what unsettles you
-- **Let some mess in** — perfect structure feels algorithmic; tangents and asides are human
+- **Let some mess in** — fragments ("Because that's real."), conjunction starters ("But here's the thing."), parentheticals (thinking mid-sentence) — all signal a human drafting, not generating
 
 ## Composition
 
