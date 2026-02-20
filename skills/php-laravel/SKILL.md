@@ -71,6 +71,13 @@ Use these when applicable — do not explain them in comments (Claude and develo
 - `Sanctum::actingAs($user, ['ability'])` for API auth testing
 - Run relevant tests first, offer full suite after
 
+## Discipline
+
+- For non-trivial changes, pause and ask: "is there a more elegant way?" Skip for obvious fixes.
+- Simplicity first — every change as simple as possible, impact minimal code
+- Only touch what's necessary — avoid introducing unrelated changes
+- No hacky workarounds — if a fix feels wrong, step back and implement the clean solution
+
 ## Anti-Patterns
 
 - Querying in loops — use eager loading or `whereIn()` instead

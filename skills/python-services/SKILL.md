@@ -141,6 +141,13 @@ def call_api(url: str) -> dict: ...
 - **Prometheus metrics** — track latency (Histogram), traffic (Counter), errors (Counter), saturation (Gauge). Keep label cardinality bounded (no user IDs)
 - **OpenTelemetry** for distributed tracing across services
 
+## Discipline
+
+- For non-trivial changes, pause and ask: "is there a more elegant way?" Skip for obvious fixes.
+- Simplicity first — every change as simple as possible, impact minimal code
+- Only touch what's necessary — avoid introducing unrelated changes
+- No hacky workarounds — if a fix feels wrong, step back and implement the clean solution
+
 ## Error Handling
 
 - Validate inputs at boundaries before expensive ops. Report all errors at once when possible

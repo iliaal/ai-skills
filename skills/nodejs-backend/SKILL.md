@@ -82,6 +82,13 @@ Codes: 400 bad input | 401 no auth | 403 no permission | 404 missing | 409 confl
 
 Never `readFileSync` / sync methods in production. Offload CPU work to worker threads. Stream large payloads.
 
+## Discipline
+
+- For non-trivial changes, pause and ask: "is there a more elegant way?" Skip for obvious fixes.
+- Simplicity first — every change as simple as possible, impact minimal code
+- Only touch what's necessary — avoid introducing unrelated changes
+- No hacky workarounds — if a fix feels wrong, step back and implement the clean solution
+
 ## References
 
 - [TypeScript config](references/typescript-config.md) — tsconfig, ESM, branded types, compiler performance

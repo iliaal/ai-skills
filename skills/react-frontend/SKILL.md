@@ -112,3 +112,10 @@ Form state           → React Hook Form
 - Tag-based: `fetch(url, { next: { tags: ['products'] } })` then `revalidateTag('products')`
 
 **Data fetching:** Fetch in Server Components where data is used. Use Suspense boundaries for slow queries. `React.cache()` for per-request dedup. `generateStaticParams` for static generation. `generateMetadata` for dynamic SEO.
+
+## Discipline
+
+- For non-trivial changes, pause and ask: "is there a more elegant way?" Skip for obvious fixes.
+- Simplicity first — every change as simple as possible, impact minimal code
+- Only touch what's necessary — avoid introducing unrelated changes
+- No hacky workarounds — if a fix feels wrong, step back and implement the clean solution
