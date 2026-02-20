@@ -2,18 +2,14 @@
 name: testing-laravel
 description: >-
   Writes Laravel tests using PHPUnit. Use when "write tests", "add tests",
-  "phpunit", "laravel test", "feature test", "unit test", "TDD", "mock",
-  "factory", or testing controllers, models, services, actions, jobs, artisan
-  commands, or API endpoints.
+  "phpunit", "laravel test", "feature test", "unit test", "mock", "factory",
+  or testing controllers, models, services, actions, jobs, artisan commands,
+  or API endpoints.
 ---
 
 # Testing Laravel
 
 Use PHPUnit with Laravel's testing helpers. Every test file starts with `declare(strict_types=1)`.
-
-## TDD Cycle
-
-RED → verify RED → GREEN → verify GREEN → REFACTOR. Write one failing test, run it to confirm failure, write minimal code to pass, run again to confirm green, then refactor. Always execute both verify steps.
 
 ## Test Classification
 
