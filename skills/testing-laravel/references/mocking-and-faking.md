@@ -100,6 +100,13 @@ public function test_fetches_data_from_external_api(): void
 }
 ```
 
+Use `Http::preventStrayRequests()` after faking to fail on any unfaked URL — catches accidental real HTTP calls:
+
+```php
+Http::fake(['api.example.com/*' => Http::response(['ok' => true])]);
+Http::preventStrayRequests(); // any other URL throws an exception
+```
+
 ## Bus Faking (Batches & Chains)
 
 ```php
@@ -175,3 +182,49 @@ public function test_sends_notification_to_active_users(): void
 ```
 
 Prefer Laravel facade fakes over Mockery when both options exist. Use Mockery for custom services and repository interfaces.
+
+## Time Travel
+
+For testing time-dependent logic (expiration, scheduling, "created N days ago"):
+
+```php
+public function test_marks_overdue_orders(): void
+{
+    $order = Order::factory()->create();
+
+    $this->travel(31)->days();
+
+    $this->artisan('orders:mark-overdue')->assertSuccessful();
+
+    $this->assertDatabaseHas('orders', [
+        'id' => $order->id,
+        'status' => 'overdue',
+    ]);
+
+    $this->travelBack(); // reset to real time
+}
+
+public function test_timestamps_match_frozen_time(): void
+{
+    $this->freezeTime();
+
+    $user = User::factory()->create();
+
+    $this->assertSame(now()->toDateTimeString(), $user->created_at->toDateTimeString());
+}
+
+public function test_subscription_expires(): void
+{
+    $user = User::factory()->create();
+    $subscription = Subscription::factory()->create([
+        'user_id' => $user->id,
+        'expires_at' => now()->addDays(30),
+    ]);
+
+    $this->travelTo(now()->addDays(31));
+
+    $this->assertTrue($subscription->fresh()->isExpired());
+}
+```
+
+Available time units: `seconds()`, `minutes()`, `hours()`, `days()`, `weeks()`, `months()`, `years()`. Always call `$this->travelBack()` or use `$this->freezeTime()` to avoid leaking time state between tests.
