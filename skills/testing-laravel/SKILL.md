@@ -29,6 +29,7 @@ Default to feature tests for anything touching routes, controllers, or models. U
 - Fake facades BEFORE the action: `Queue::fake()` then act then `Queue::assertPushed(...)`
 - `assertDatabaseHas` / `assertDatabaseMissing` to verify persistence — use these instead of re-querying
 - Resolve action classes from the container with `resolve()` so DI works; use `swap()` to inject mocks
+- **Tests expose bugs, not the reverse**: If a test uncovers broken or buggy behavior, highlight the issue and propose a fix to the source code. Never adjust the test to match incorrect behavior.
 
 ## PHPUnit Essentials
 

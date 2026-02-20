@@ -27,6 +27,7 @@ Vitest config: `environment: 'jsdom'`, `globals: true`, `setupFiles` pointing to
 - **User events**: Prefer `userEvent` over `fireEvent` for realistic interactions.
 - **Cleanup**: `vi.clearAllMocks()` in `beforeEach`. Recreate test state per test instead of sharing mutable variables.
 - **Incremental workflow**: When testing a directory, process one file at a time (simplest first). Run and verify each before proceeding.
+- **Tests expose bugs, not the reverse**: If a test uncovers broken or buggy behavior, highlight the issue and propose a fix to the source code. Never adjust the test to match incorrect behavior.
 
 ## Component Test
 
