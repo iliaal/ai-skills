@@ -1,6 +1,8 @@
 # Authentication & Security
 
-## Authentication
+For comprehensive security auditing (OWASP compliance, vulnerability scanning, checklist), use the `security-sentinel` agent. This reference covers Node.js-specific tooling and patterns only.
+
+## Authentication Pattern
 
 - **Access token**: JWT, 15min expiry, payload: `{ userId, email }`
 - **Refresh token**: JWT, 7d expiry, stored in DB (revocable)
@@ -9,19 +11,13 @@
 - **Authorization**: after auth, check role or resource ownership per request
 - Always return generic "Invalid credentials" — never reveal if user exists
 
-## Security Checklist
+## Node.js Security Tooling
 
-- [ ] All inputs validated (Zod/TypeBox at route boundary)
-- [ ] Parameterized queries only (no string concatenation)
-- [ ] Passwords hashed (bcrypt/argon2, never plaintext)
-- [ ] JWT: verify signature + expiry, short-lived access tokens
-- [ ] Rate limiting (express-rate-limit + Redis store, stricter on auth endpoints)
-- [ ] Security headers (Helmet)
-- [ ] HTTPS everywhere in production
-- [ ] CORS restricted to specific origins
-- [ ] Secrets from env vars only, validated at startup
-- [ ] `npm audit` regularly
-- [ ] No stack traces in production error responses
-- [ ] Authorization per request, not just authentication
-
-OWASP API Top 10: Broken Object-Level Auth | Broken Auth | Broken Property-Level Auth | Unrestricted Resource Consumption | Broken Function-Level Auth | Sensitive Business Flow | SSRF | Security Misconfiguration | Improper Inventory | Unsafe API Consumption
+| Concern | Tool/Package | Usage |
+|---------|-------------|-------|
+| Input validation | Zod / TypeBox | Validate at route boundary |
+| Security headers | Helmet | `app.use(helmet())` |
+| Rate limiting | express-rate-limit + Redis store | Stricter on auth endpoints |
+| CORS | cors package | Restrict to specific origins |
+| Dependency audit | `npm audit` | Run regularly in CI |
+| Secrets | env vars via dotenv/vault | Validate at startup, never commit |
