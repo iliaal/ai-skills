@@ -1,7 +1,7 @@
 ---
 name: php-laravel
 description: >-
-  Modern PHP 8.2+ and Laravel patterns: architecture, Eloquent, queues, Pest
+  Modern PHP 8.4 and Laravel patterns: architecture, Eloquent, queues, Pest
   testing. Use when asked to "write PHP", "build a Laravel app", "fix Eloquent
   query", "add a queue job", "write a Pest test", or mentions PHP, Laravel,
   Eloquent, Blade, artisan, or migrations.
@@ -17,8 +17,9 @@ description: >-
 - No single-letter variables — `$exception` not `$e`, `$request` not `$r`
 - `?string` not `string|null`. Always specify `void`. Import classnames everywhere, never inline FQN.
 - Validation uses array notation `['required', 'email']` for easier custom rule classes
+- Static analysis: run PHPStan at level 8+ (`phpstan analyse --level=8`). Aim for level 9 on new projects. Use `@phpstan-type` and `@phpstan-param` for generic collection types.
 
-## Modern PHP (8.2+)
+## Modern PHP (8.4)
 
 Use these when applicable — do not explain them in comments (Claude and developers know them):
 - Readonly classes and properties for immutable data
@@ -28,6 +29,10 @@ Use these when applicable — do not explain them in comments (Claude and develo
 - First-class callable syntax `$fn = $obj->method(...)`
 - Fibers for cooperative async when Swoole/ReactPHP not available
 - DNF types `(Stringable&Countable)|null` for complex constraints
+- Property hooks: `public string $name { get => strtoupper($this->name); set => trim($value); }`
+- Asymmetric visibility: `public private(set) string $name` — public read, private write
+- `new` without parentheses in chains: `new MyService()->handle()`
+- `array_find()`, `array_any()`, `array_all()` — native array search/check without closures wrapping Collection
 
 ## Laravel Architecture
 
@@ -78,6 +83,13 @@ Use these when applicable — do not explain them in comments (Claude and develo
 - Only touch what's necessary — avoid introducing unrelated changes
 - No hacky workarounds — if a fix feels wrong, step back and implement the clean solution
 
+## Production Performance
+
+- **OPcache**: enable in production (`opcache.enable=1`), set `opcache.memory_consumption=256`, `opcache.max_accelerated_files=20000`. Validate with `opcache_get_status()`.
+- **JIT**: enable with `opcache.jit_buffer_size=100M`, `opcache.jit=1255` (tracing). Biggest gains on CPU-bound code (math, loops), minimal impact on I/O-bound Laravel requests.
+- **Preloading**: `opcache.preload=preload.php` — preload framework classes and hot app classes. Use `composer dumpautoload --classmap-authoritative` in production.
+- **Laravel-specific**: `php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache` — run on every deploy. `composer install --optimize-autoloader --no-dev` for production.
+
 ## Anti-Patterns
 
 - Querying in loops — use eager loading or `whereIn()` instead
@@ -85,3 +97,7 @@ Use these when applicable — do not explain them in comments (Claude and develo
 - Business logic in controllers — extract to service/action instead
 - `protected $guarded = []` — use `$fillable` instead
 - Inline validation in controllers — use Form Requests instead
+
+## References
+
+- [laravel-ecosystem.md](./references/laravel-ecosystem.md) — Notifications, Task Scheduling, Custom Casts
