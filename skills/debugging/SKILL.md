@@ -13,6 +13,16 @@ description: >-
 
 Never propose a fix without first identifying the root cause. "Quick fix now, investigate later" is forbidden — it creates harder bugs.
 
+## Root Cause Analysis
+
+Root cause identification is the core deliverable of debugging — not the fix itself. A fix without a confirmed root cause is guesswork.
+
+- **Trace backward**: Start at the symptom, walk the call chain in reverse to find where behavior diverges from expectation
+- **Differential analysis**: Compare working vs broken state across dimensions (code version, data, environment, timing, configuration)
+- **Regression hunting**: Use `git bisect` to pinpoint the exact commit that introduced the issue
+- **Evidence-based**: Document root cause with `file:line` references, log output, and concrete reproduction proof
+- **Competing hypotheses**: When the cause is ambiguous, generate multiple hypotheses and rank by evidence strength (see Escalation section below)
+
 ## Process
 
 **1. Reproduce** — make the bug consistent. If intermittent, run N times under stress or simulate poor conditions (slow network, low memory) until it triggers reliably.
