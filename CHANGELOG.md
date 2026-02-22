@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Minor** — new skill added
 - **Patch** — tweaks, fixes, and improvements to existing skills
 
+## [1.4.2] - 2026-02-22
+
+### Changed
+
+- **testing-laravel**, **testing-react** — add "review tests" and "check tests" trigger keywords to descriptions
+
 ## [1.4.1] - 2026-02-22
 
 ### Changed

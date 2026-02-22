@@ -22,7 +22,7 @@ Uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
 - **Minor** (1.0.0 → 1.1.0) — new skill added
 - **Patch** (1.0.0 → 1.0.1) — tweaks, fixes, and improvements to existing skills
 
-Current version: **1.4.1**
+Current version: **1.4.2**
 
 ## Updating Skills
 
