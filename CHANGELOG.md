@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Minor** — new skill added
 - **Patch** — tweaks, fixes, and improvements to existing skills
 
+## [1.4.3] - 2026-02-22
+
+### Changed
+
+- **writing** — add "PR descriptions" and "plans" to trigger keywords
+
 ## [1.4.2] - 2026-02-22
 
 ### Changed
