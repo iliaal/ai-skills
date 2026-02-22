@@ -25,7 +25,7 @@ Works with Claude Code, OpenCode, OpenClaw and its derivatives, Codex, Cursor, K
 | [react-frontend](skills/react-frontend) | React 18-19, TypeScript, Next.js App Router, Server Components, type-safe patterns |
 | [nodejs-backend](skills/nodejs-backend) | Express/Fastify layered architecture, validation, error handling, production config |
 | [python-services](skills/python-services) | CLI tools, async parallelism, FastAPI, project tooling (uv, ruff, ty) |
-| [php-laravel](skills/php-laravel) | PHP 8.2+, Laravel, Eloquent, queues, Pest testing |
+| [php-laravel](skills/php-laravel) | PHP 8.4, Laravel, Eloquent, queues, PHPUnit testing |
 | [pinescript](skills/pinescript) | Pine Script v6 indicators, strategies, backtesting, TradingView |
 
 ### Infrastructure
@@ -36,12 +36,19 @@ Works with Claude Code, OpenCode, OpenClaw and its derivatives, Codex, Cursor, K
 | [terraform](skills/terraform) | Terraform/OpenTofu modules, testing, state management, multi-environment HCL |
 | [linux-bash-scripting](skills/linux-bash-scripting) | Defensive Bash, argument parsing, production patterns, ShellCheck compliance |
 
+### Testing
+
+| Skill | Description |
+|-------|------------|
+| [testing-laravel](skills/testing-laravel) | Laravel tests using PHPUnit: feature tests, factories, mocking, time travel |
+| [testing-react](skills/testing-react) | React/TypeScript tests using Vitest and React Testing Library |
+
 ### Workflow
 
 | Skill | Description |
 |-------|------------|
 | [code-review](skills/code-review) | Two-stage review (spec compliance, then code quality) with severity-ranked findings |
-| [debugging](skills/debugging) | Root-cause debugging: reproduce, investigate, hypothesize, fix, verify |
+| [debugging](skills/debugging) | Root-cause debugging: reproduce, investigate, hypothesize, fix, verify, postmortem |
 | [simplifying-code](skills/simplifying-code) | Declutter code without changing behavior |
 | [planning](skills/planning) | File-based implementation planning with task breakdown and progress tracking |
 
@@ -52,6 +59,7 @@ Works with Claude Code, OpenCode, OpenClaw and its derivatives, Codex, Cursor, K
 | [writing](skills/writing) | Prose editing and rewriting with a natural tone |
 | [refine-prompt](skills/refine-prompt) | Turn rough prompts into precise AI instructions |
 | [meta-prompting](skills/meta-prompting) | Structured reasoning via /think, /verify, /adversarial, /edge, /compare |
+| [reflect](skills/reflect) | Session retrospective and skill audit |
 | [md-docs](skills/md-docs) | Manage AGENTS.md, README.md, and CONTRIBUTING.md |
 
 ## Design
@@ -82,6 +90,10 @@ skills in favor of doing the work manually.
 ```
 
 This turns skill activation from "when it feels like it" into a reliable first step.
+
+## Version History
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
 ## License
 
