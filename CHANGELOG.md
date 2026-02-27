@@ -10,6 +10,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Minor** — new skill added
 - **Patch** — tweaks, fixes, and improvements to existing skills
 
+## [2.0.0] - 2026-02-27
+
+### Changed
+
+- **Mirror mode** — this repo is now a read-only mirror of skills from the [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin). All edits happen upstream.
+- **Skill consolidation (19 → 31 skills)** — all plugin skills are now mirrored here, including 14 previously plugin-native skills and updated versions of all existing skills.
+
+### Added
+
+- **agent-native-architecture** — build AI agents using prompt-native architecture
+- **brainstorming** — explore requirements and approaches through dialogue
+- **compound-docs** — capture solved problems as categorized documentation
+- **document-review** — improve documents through structured self-review
+- **file-todos** — file-based todo tracking system
+- **finishing-branch** — workflow closer: merge, PR, keep, or discard with safety checks
+- **frontend-design** — create production-grade frontend interfaces
+- **git-worktree** — manage Git worktrees for parallel development
+- **orchestrating-swarms** — multi-agent swarm orchestration
+- **receiving-code-review** — process review feedback critically
+- **resolve-pr-parallel** — resolve PR review comments in parallel
+- **setup** — configure which review agents run for your project
+- **verification-before-completion** — fresh verification evidence before completion claims
+- **writing-tests** — generic test discipline: quality, anti-patterns, rationalization resistance
+
+### Removed
+
+- **testing-laravel** — absorbed into php-laravel (testing content as references)
+- **testing-react** — absorbed into react-frontend (testing content as references)
+
 ## [1.4.3] - 2026-02-22
 
 ### Changed

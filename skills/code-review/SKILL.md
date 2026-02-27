@@ -1,10 +1,8 @@
 ---
 name: code-review
 description: >-
-  Performs two-stage code reviews (spec compliance, then code quality) with
-  severity-ranked findings. Use when asked to "review code", "review this PR",
-  "check this diff", "review before merge", or mentions reviewing, auditing,
-  or critiquing code changes, pull requests, or diffs.
+  Two-stage code reviews (spec compliance, then code quality) with severity-ranked
+  findings. Use when reviewing, auditing, or critiquing code, PRs, MRs, or diffs.
 ---
 
 # Code Review
@@ -74,3 +72,9 @@ Performance:
 ```
 
 Ground every finding in actual code — no invented line references. Limit to 10 findings per severity. If more exist, note the count and show the highest-impact ones.
+
+## Integration
+
+- `receiving-code-review` — the inbound side (processing review feedback received from others)
+- `workflows:review` — the full review command with multi-agent analysis
+- `resolve-pr-parallel` — batch-resolve PR comments with parallel agents

@@ -2,6 +2,8 @@
 
 Compact, opinionated agent skills for AI coding assistants. Distilled and refined to stay small, hit hard, and waste nothing.
 
+> **Note:** This repo is a read-only mirror of skills from the [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin). Edits happen upstream; this repo is for distribution via `npx skills add`.
+
 ## Install
 
 ```bash
@@ -18,11 +20,19 @@ Works with Claude Code, OpenCode, OpenClaw and its derivatives, Codex, Cursor, K
 
 ## Skills
 
+### Architecture & Design
+
+| Skill | Description |
+|-------|------------|
+| [agent-native-architecture](skills/agent-native-architecture) | Build AI agents using prompt-native architecture |
+| [frontend-design](skills/frontend-design) | Create production-grade frontend interfaces |
+| [simplifying-code](skills/simplifying-code) | Declutter code without changing behavior |
+
 ### Development
 
 | Skill | Description |
 |-------|------------|
-| [react-frontend](skills/react-frontend) | React 18-19, TypeScript, Next.js App Router, Server Components, type-safe patterns |
+| [react-frontend](skills/react-frontend) | React, TypeScript, Next.js patterns, Vitest/RTL testing |
 | [nodejs-backend](skills/nodejs-backend) | Express/Fastify layered architecture, validation, error handling, production config |
 | [python-services](skills/python-services) | CLI tools, async parallelism, FastAPI, project tooling (uv, ruff, ty) |
 | [php-laravel](skills/php-laravel) | PHP 8.4, Laravel, Eloquent, queues, PHPUnit testing |
@@ -40,27 +50,46 @@ Works with Claude Code, OpenCode, OpenClaw and its derivatives, Codex, Cursor, K
 
 | Skill | Description |
 |-------|------------|
-| [testing-laravel](skills/testing-laravel) | Laravel tests using PHPUnit: feature tests, factories, mocking, time travel |
-| [testing-react](skills/testing-react) | React/TypeScript tests using Vitest and React Testing Library |
+| [writing-tests](skills/writing-tests) | Generic test discipline: quality, anti-patterns, rationalization resistance |
 
-### Workflow
+### Code Quality & Review
 
 | Skill | Description |
 |-------|------------|
 | [code-review](skills/code-review) | Two-stage review (spec compliance, then code quality) with severity-ranked findings |
+| [receiving-code-review](skills/receiving-code-review) | Process review feedback critically: verify, push back, no blind agreement |
 | [debugging](skills/debugging) | Root-cause debugging: reproduce, investigate, hypothesize, fix, verify, postmortem |
-| [simplifying-code](skills/simplifying-code) | Declutter code without changing behavior |
+| [verification-before-completion](skills/verification-before-completion) | Fresh verification evidence before any completion claim |
 | [planning](skills/planning) | File-based implementation planning with task breakdown and progress tracking |
 
-### Writing
+### Content & Workflow
 
 | Skill | Description |
 |-------|------------|
-| [writing](skills/writing) | Prose editing and rewriting with a natural tone |
-| [refine-prompt](skills/refine-prompt) | Turn rough prompts into precise AI instructions |
-| [meta-prompting](skills/meta-prompting) | Structured reasoning via /think, /verify, /adversarial, /edge, /compare |
-| [reflect](skills/reflect) | Session retrospective and skill audit |
+| [brainstorming](skills/brainstorming) | Explore requirements and approaches through dialogue |
+| [compound-docs](skills/compound-docs) | Capture solved problems as categorized documentation |
+| [document-review](skills/document-review) | Improve documents through structured self-review |
+| [file-todos](skills/file-todos) | File-based todo tracking system |
+| [finishing-branch](skills/finishing-branch) | Workflow closer: merge, PR, keep, or discard with safety checks |
+| [git-worktree](skills/git-worktree) | Manage Git worktrees for parallel development |
 | [md-docs](skills/md-docs) | Manage AGENTS.md, README.md, and CONTRIBUTING.md |
+| [resolve-pr-parallel](skills/resolve-pr-parallel) | Resolve PR review comments in parallel |
+| [setup](skills/setup) | Configure which review agents run for your project |
+| [writing](skills/writing) | Prose editing, rewriting, and humanizing text |
+
+### AI & Prompting
+
+| Skill | Description |
+|-------|------------|
+| [meta-prompting](skills/meta-prompting) | Structured reasoning via /think, /verify, /adversarial, /edge, /compare |
+| [refine-prompt](skills/refine-prompt) | Turn rough prompts into precise AI instructions |
+| [reflect](skills/reflect) | Session retrospective and skill audit |
+
+### Multi-Agent Orchestration
+
+| Skill | Description |
+|-------|------------|
+| [orchestrating-swarms](skills/orchestrating-swarms) | Comprehensive guide to multi-agent swarm orchestration |
 
 ## Design
 
