@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Minor** — new skill added
 - **Patch** — tweaks, fixes, and improvements to existing skills
 
+## [2.0.3] - 2026-03-14
+
+### Changed
+
+- **code-review** — added untracked files to scope resolution fallback chain
+- **receiving-code-review** — added `gh api` reply command for inline PR thread replies
+- **brainstorming** — added trivially-scoped escape hatch and multi-subsystem decomposition signal
+- **planning** — added execution handoff line pointing to `workflows:work`
+- **simplifying-code** — added dense transform chain pattern to Smell-to-Fix table
+- **frontend-design** — added Motion library performance guardrails, strengthened Tailwind version check
+- **tailwind-css** — expanded border radius v3-to-v4 rename table
+- **refine-prompt** — added missing-context sub-checklist to Context assessment row
+- **verification-before-completion** — added verification phase order (build, typecheck, lint, test, diff)
+- **react-frontend** — added RSC safety rules to App Router decision section
+
 ## [2.0.0] - 2026-02-27
 
 ### Changed
