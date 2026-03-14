@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Minor** — new skill added
 - **Patch** — tweaks, fixes, and improvements to existing skills
 
+## [2.0.4] - 2026-03-14
+
+### Changed
+
+- **meta-prompting** — added output format awareness to intro line
+- **writing** — converted Self-Check to 4-step procedural checklist with done definition
+- **pinescript** — added Workflow section with development cycle and overfit detection
+- **linux-bash-scripting** — added Verify section (shellcheck + shfmt + edge cases)
+- **nodejs-backend** — added verify line to Discipline section
+- **postgresql** — added Verify section (EXPLAIN ANALYZE + FK check)
+- **python-services** — added verify line to Discipline section
+
 ## [2.0.3] - 2026-03-14
 
 ### Changed
