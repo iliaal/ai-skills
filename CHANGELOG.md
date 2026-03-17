@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Minor** — new skill added
 - **Patch** — tweaks, fixes, and improvements to existing skills
 
+## [2.0.5] - 2026-03-17
+
+### Changed
+
+- **code-review** — fetch MR/PR discussions before writing findings to avoid re-raising resolved issues
+- **code-review** — use diff content directly for added files instead of reading from working tree on remote branches
+
 ## [2.0.4] - 2026-03-14
 
 ### Changed
