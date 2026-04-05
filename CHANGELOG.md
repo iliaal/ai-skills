@@ -5,6 +5,34 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versions track the upstream [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin).
 
+## [2.53.0] - 2026-04-05
+
+### Added
+- **code-review**: Three new deep-review specialists -- api-contract (breaking changes, versioning, error consistency), data-migration (reversibility, lock duration, backfill strategy), red-team (adversarial second pass finding integration gaps). Change sizing guidance with 4 splitting strategies. Readability as explicit review dimension.
+- **writing**: Two-phase audit workflow (detect all tells first, then rewrite) with citation auditing tags ([OAICITE], [LINK-ROT], [ISBN-DOI-FAIL], [REF-BUG]). New `references/audit-workflow.md`.
+- **frontend-design**: Expanded AI slop detection to 6 prioritized patterns plus 15 additional tells. Motion patterns extracted to `references/motion-patterns.md` with spring physics values, stagger recipes, and GPU-safe animation rules.
+- **orchestrating-swarms**: Cold-start agent isolation, label randomization for judge panels, convergence detection. Two-stage review gate for subagent outputs. Resilience patterns (cascade prevention, recovery strategy, post-failure synthesis).
+- **verification-before-completion**: Three new rationalization table entries and red flags list for detecting skipped verification.
+- **planning**: Vertical slicing taxonomy, checkpoint system (verify every 2-3 tasks), strengthened no-placeholders rule.
+- **writing-tests**: Prove-It Pattern for bug fixes (reproduce bug with failing test before fixing). Test pyramid level definitions.
+- **md-docs**: Context hierarchy for CLAUDE.md files (Rules > Tech stack > Commands > Conventions > Boundaries).
+- **python-services**: Sync vs async decision guide. API design patterns with FastAPI idioms.
+- **php-laravel**: API design patterns with Laravel idioms (API Resources as contracts, Form Requests for boundary validation).
+- **nodejs-backend**: API design patterns with TypeScript/Express idioms (Zod schemas, consistent error envelopes). Expanded Express trigger to cover endpoints/routes/APIs.
+- **react-frontend**: Tailwind integration section with cross-reference to tailwind-css skill. JSX class sorting with `useSortedClasses` config.
+- **agent-native-architecture**: Hooks patterns reference (`references/hooks-patterns.md`) covering agent-context hook limitations, decision control, MCP matchers, async hooks, two-tier config.
+### Changed
+- **code-review**: Removed Fix-First Heuristic and auto-fix instructions -- skill is diagnostic only, identifies and reports issues without fixing.
+- **frontend-design**: Condensed motion bullet in SKILL.md, moved detailed rules to references/motion-patterns.md. Replaced inline "Additional tells" with reference link.
+- **orchestrating-swarms**: Removed duplicate "fresh agent" and "provide full context" directives that appeared in both Dispatch Discipline and later sections.
+- **verification-before-completion**: Removed duplicate "zero issues found" row from rationalization table (already covered in Rules section).
+- **agent-native-architecture**: Rephrased "Primitives not Workflows" to positive form.
+- **nodejs-backend**: Added positive alternative to sync method ban (use fs.promises/streams).
+- **php-laravel**: Clarified "don't explain" rule to specifically target generated code comments.
+- **python-services**: Discipline section references Verify section instead of restating commands.
+- **planning**: Removed redundant anti-pattern row (covered by Phase Sizing Rules).
+- **tailwind-css**: Removed out-of-scope React 19 forwardRef note (belongs in react-frontend).
+
 ## [2.52.1] - 2026-04-04
 
 ### Changed
