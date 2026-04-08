@@ -5,6 +5,27 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versions track the upstream [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin).
 
+## [2.53.2] - 2026-04-08
+
+### Changed
+- **orchestrating-swarms**: Task description template with file ownership and interface contracts. Controller-curates-context principle. Spawned-session behavior for subagent skills. Circuit-breaker, bulkhead isolation, and saga compensation for mid-pipeline failures.
+- **code-review**: Fix-First heuristic (AUTO-FIX vs ASK classification table). Red-team adversarial pass (silent failures, trust exploits, edge cases). Comment labels for inline review feedback. LLM-specific false-positive rule. Numbered findings for easier referencing.
+- **agent-native-architecture**: MCP tool annotations, structured output with actionable errors, transport selection matrix, pagination contract, multi-server tool naming.
+- **planning**: Session continuity protocol. Threat modeling reference for security-sensitive designs.
+- **git-worktree**: Branch completion ceremony (4-option flow with discard confirmation). Change Summary with "DIDN'T TOUCH" section.
+- **brainstorming**: Seven ideation lenses, "Not Doing" list, assumptions-with-validation format. Threat modeling reference.
+- **writing**: Wh- sentence openers, Narrator-from-a-distance, lazy extremes, meta-commentary tells.
+- **writing-tests**: Three-source QA inventory (requirements, features, claims).
+- **simplifying-code**: Chesterton's Fence in read-first step. Over-simplification failure modes. Function length threshold tightened to >20 lines.
+- **frontend-design**: Utility copy discipline for product UI vs marketing copy.
+- **debugging**: RELATED and STATUS fields in debug report. CI failure investigation pattern in specialized-patterns.md.
+- **verification-before-completion**: Pre-verification dirty-tree check. Don't-trust-implementer rule for delegated work.
+- **reflect**: Operational learnings step with 5-minute filter.
+- **postgresql**: Migration Safety section with expand-contract pattern, batch UPDATE with FOR UPDATE SKIP LOCKED, dangerous operations guide.
+- **nodejs-backend**: Fail-fast env validation, health endpoints (shallow vs deep), migration patterns, third-party response validation, pre-ship endpoint checklist.
+- **php-laravel**: Fail-fast config validation, health endpoints, migration discipline, third-party response validation.
+- **python-services**: Fail-fast config validation via Pydantic BaseSettings, health endpoints, migration patterns, uv upgrade workflow, third-party response validation.
+
 ## [2.53.0] - 2026-04-05
 
 ### Added
