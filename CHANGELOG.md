@@ -5,6 +5,15 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versions track the upstream [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin).
 
+## [2.55.1] - 2026-04-12
+
+### Changed
+- **php-laravel**: replaced ambiguous "Fat models, thin controllers" with clear boundary -- models own domain behavior, services own orchestration.
+- **react-frontend**: React Compiler install instruction updated to framework-first config path (Next.js `reactCompiler: true`).
+- **python-services**: added `uv run ty check .` to Verify section -- ty was listed as a tool but never enforced.
+- **orchestrating-swarms**: trimmed redundant "Best Practices" section (3 items already covered by Dispatch Discipline and QA retry loop) down to 2 unique "Integration Rules" (post-integration verification, spawned-session behavior).
+- **verification-before-completion**: collapsed 6-row Rationalization Prevention table into a 2-sentence paragraph -- the Gate Function already covers these rules.
+
 ## [2.55.0] - 2026-04-10
 
 ### Changed — skills
