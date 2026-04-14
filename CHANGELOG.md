@@ -5,6 +5,16 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versions track the upstream [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin).
 
+## [2.56.0] - 2026-04-14
+
+### Added
+- **rust-systems/references/cli-tools.md**: clap derive patterns, layered `LowArgs → HiArgs` parsing for non-trivial CLIs (ripgrep-style), config layering (defaults → XDG → project → env → flags), stderr logging with TTY-aware progress, `assert_cmd` CLI testing.
+- **rust-systems/references/axum-service.md**: project layout (routes → services → repos), AppState with `Arc` inside, `IntoResponse` error envelope from `thiserror`, `ValidatedJson` extractor, tower middleware order, `tokio::signal` graceful shutdown, `sqlx::query_as!` compile-time macros with offline `.sqlx/` cache, `tower::ServiceExt::oneshot` for router tests.
+### Changed
+- **code-review**: merged Maintainability and Readability subsections under "What to Check" — three of five Maintainability items (naming, function length, nesting depth) duplicated the Readability list. Consolidated section preserves Readability's measurable thresholds ("3 levels of indentation", "forces scrolling") and keeps Maintainability-unique items (God classes / SRP, leaky abstractions).
+- **code-review**: test-file exclusion added to Review Mode Selection signals. Lines/files/directory counts now exclude `tests/`, `__tests__/`, `*.test.*`, `*.spec.*`, `*_test.*` paths so boilerplate-heavy test expansions don't falsely trigger deep review. Both totals reported for transparency.
+- **code-review/references/false-positive-suppression.md**: clarified the vague "already addressed in the diff" example under Readability-aiding redundancy. Now explicit: author fixed it in a later commit within the same diff, flagged it in their own PR comments, or a prior reviewer resolved it.
+
 ## [2.55.1] - 2026-04-12
 
 ### Changed
