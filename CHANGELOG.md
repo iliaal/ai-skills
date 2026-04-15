@@ -2,7 +2,7 @@
 
 All notable changes to ai-skills will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin).
 
 ## [2.56.0] - 2026-04-14
