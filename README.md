@@ -1,5 +1,10 @@
 # AI Skills
 
+[![Claude Code Skills](https://img.shields.io/badge/Claude_Code-Skills-blue?logo=anthropic&logoColor=white)](https://code.claude.com/docs/en/skills)
+[![ClawHub](https://img.shields.io/badge/ClawHub-Published-6f42c1)](https://clawhub.ai/u/iliaal)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Follow @iliaa](https://img.shields.io/badge/Follow-@iliaa-000000?style=flat&logo=x&logoColor=white)](https://x.com/intent/follow?screen_name=iliaa)
+
 Compact, opinionated skills that change how AI coding agents behave. Behavioral rules that enforce discipline and catch mistakes, triggered by what you're working on.
 
 > **Note:** This repo is a read-only mirror of skills from the [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin). Edits happen upstream; this repo exists for distribution via `npx skills add`.
