@@ -20,7 +20,7 @@ Always `EXPLAIN ANALYZE` slow queries. Watch for sequential scans on large table
 
 **Migrations:**
 - Separate schema and data migrations -- data backfills in their own migration file
-- Renames/removals use expand-contract: add new column → backfill → switch reads → drop old (see `postgresql` skill for the full pattern)
+- Renames/removals use expand-contract: add new column → backfill → switch reads → drop old (see `ia-postgresql` skill for the full pattern)
 - Never edit a migration that has already run in a shared environment
 - Kysely: always type migrations as `Kysely<any>`, not your app's typed DB interface -- migrations are frozen in time and the schema will evolve past them
 - Drizzle/Prisma: keep migration SQL files under version control, review generated SQL before applying

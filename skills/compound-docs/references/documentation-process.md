@@ -15,7 +15,7 @@
 - "problem solved"
 - "that did it"
 
-**OR manual:** `/workflows:compound` command
+**OR manual:** `/ia-compound` command
 
 **Non-trivial problems only:**
 

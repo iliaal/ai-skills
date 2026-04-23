@@ -34,7 +34,7 @@ Custom keys: `/json {keys: summary, risks, recommendation}`
 **`/edge`** | `/break` -- 5+ inputs/scenarios that break the approach. Code: null/empty, concurrency, overflow, encoding, auth bypass. Strategies: market conditions, timing, dependencies.
 *Auto-triggers on: security, validation, parsing contexts.*
 
-**`/verify`** | `/check` -- Three phases: (1) **Answer** direct response, (2) **Challenge** 3 ways it could be wrong, (3) **Verify** investigate each, update if needed. Mark final as `VERIFIED ANSWER:` or `REVISED ANSWER:`.
+**`/ia-verify`** | `/check` -- Three phases: (1) **Answer** direct response, (2) **Challenge** 3 ways it could be wrong, (3) **Verify** investigate each, update if needed. Mark final as `VERIFIED ANSWER:` or `REVISED ANSWER:`.
 *Auto-triggers on: architecture decisions, critical choices, "Am I right?"*
 
 **`/flip`** | `/alt` -- Solve without the obvious approach. What's the second-best solution and when would it actually be better? Override: `/flip 3` for top 3 alternatives.
@@ -49,7 +49,7 @@ Custom keys: `/json {keys: summary, risks, recommendation}`
 
 ## Combos
 
-**`/analyze`** = `/think` + `/edge` + `/verify` -- Code reviews, architecture, security-sensitive work. Synthesize findings into a unified recommendation -- don't just concatenate pattern outputs.
+**`/analyze`** = `/think` + `/edge` + `/ia-verify` -- Code reviews, architecture, security-sensitive work. Synthesize findings into a unified recommendation -- don't just concatenate pattern outputs.
 *Auto-triggers on: code review requests.*
 
 **`/trade`** = `/confidence` + `/adversarial` + `/edge` -- Trade ideas, position analysis, market thesis.

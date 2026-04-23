@@ -97,6 +97,18 @@ For every feature, consider:
 - Error paths (network failure, timeout, permission denied)
 - Unicode and special characters in string inputs
 
+### Silent failure coverage
+
+Tests must detect silent failures, not just happy paths. For every code path that catches, logs, or short-circuits on error, add an assertion that proves the failure was observable. Hunt targets during test writing:
+
+- **Empty catch blocks** (`try { ... } catch {}`) — add a test that triggers the error and asserts the logger (or equivalent signal) was called with the original exception.
+- **Swallowed rejections** (`.catch(() => [])`, `.catch(() => null)`) — add a test that triggers the rejection and asserts the caller sees a distinguishable signal (specific return value, logged error, re-thrown).
+- **Converted errors** (`catch (e) { return defaultValue; }`) — assert both the return value AND that the error was recorded somewhere the operator can find it.
+- **Missing async handling** — assert that a rejected promise inside the function causes a surfaced failure (not just an unhandled-rejection warning).
+- **No rollback around transactional work** — assert that a failure mid-transaction leaves no partial state (row counts before and after match, queue stays unchanged, etc.).
+
+Assertion pattern: instead of `expect(result).toBe(null)` (which passes for both "handled gracefully" and "silent drop"), prefer `expect(logger.error).toHaveBeenCalledWith(expect.any(DatabaseError))` — make the observable signal part of the contract.
+
 ## Red-Green-Refactor (When It Applies)
 
 Tests-first answer "what should this do?" Tests-after answer "what does this do?" The distinction matters: tests written after implementation are biased toward verifying what you built, not what's required.
@@ -159,6 +171,17 @@ The goal: by the time the feature is done, tests exist and pass. Whether you wro
 
 Before mocking any method, ask: (1) What side effects does the real method have? (2) Does this test depend on any of those side effects? (3) Mock at the lowest level that removes the slow/external part -- not higher.
 
+### AI-generated test smells
+
+Tests written by LLMs (including self-written) tend to produce a specific class of failures. Scan for these before committing:
+
+- **Mock of the system under test** — mocking the very function being tested, so the test asserts what the mock returned. Always a mistake. Delete the mock; call the real function.
+- **Circular assertion** — computing the expected value the same way the code computes the actual value (`expect(sum(a,b)).toBe(a+b)`). The test passes even when both are wrong. Replace with a hand-computed expected value or a known fixture.
+- **Snapshot of unreviewed output** — first-run snapshot committed without reading it. The snapshot enshrines whatever the code happened to emit, bugs included. Hand-write the first snapshot or diff it line by line before accepting.
+- **Assertion-free exercise** — test calls the function, checks nothing, passes because nothing threw. Every test needs at least one `expect(...)` / `assert ...` tied to the behavior under test.
+- **Over-broad matchers** — `expect(result).toBeTruthy()` on a function that returns an object. Passes for `{}`, `true`, `"anything"`, all equally. Pin to the specific shape.
+- **Implementation-echo assertions** — `expect(repo.save).toHaveBeenCalledTimes(1)` when the real contract is "the user exists in the database afterward." Assert on outcomes, not call counts.
+
 ## When Stuck
 
 | Stuck on... | Do this |
@@ -170,23 +193,7 @@ Before mocking any method, ask: (1) What side effects does the real method have?
 
 ## Rationalization Table
 
-When you catch yourself thinking these things, stop:
-
-| Rationalization | Reality |
-|----------------|---------|
-| "This is too simple to need tests" | Simple code still breaks. Tests document expected behavior. |
-| "I manually tested it" | Manual testing is ephemeral -- it can't be re-run, it proves nothing to the next person |
-| "Tests will slow me down" | Debugging without tests slows you down more. Tests catch bugs at write time instead of production. |
-| "I'll add tests later" | Later never comes. The context you have now is gone later. |
-| "The tests would just test the framework" | Then you're not testing your logic. Find the logic and test that. |
-| "It's just a refactor, behavior didn't change" | Run the existing tests. If they pass, you're done. If none exist, this is exactly when to add them. |
-| "100% coverage is overkill" | Nobody said 100%. But 0% is negligence. Test the important paths. |
-| "Mocks are faster" | Mocks are faster to run and slower to maintain. They test assumptions, not behavior. |
-| "I already wrote the implementation" | Sunk cost. Tests written after pass immediately and prove nothing about the original bug. |
-| "The test is too hard to write" | Hard-to-test code signals a design problem. Simplify the interface, not the test. |
-| "I need to understand the code first" | Write the test to express what you expect. The test IS your understanding, made executable. |
-| "This is a prototype / throwaway" | Prototypes become production code. Every time. The test costs 5 minutes now vs. hours debugging later. |
-| "The deadline is too tight for tests" | The deadline is too tight to debug without tests. Tests catch bugs at write time, not in production under deadline pressure. |
+When you catch yourself thinking "this is too simple to need tests", "I'll add tests later", "the deadline is too tight", or similar — stop and load [rationalization-table.md](./references/rationalization-table.md). Thirteen common excuses with their counter-truths. If you're arguing against writing a test, you're probably losing that argument.
 
 ## Verify
 
@@ -205,14 +212,14 @@ Before considering tests complete:
 
 This skill is referenced by:
 - `workflows:work` -- when adding tests for new functionality (Phase 2)
-- `debugging` -- when creating failing tests to reproduce bugs
-- `verification-before-completion` -- tests as primary verification evidence
+- `ia-debugging` -- when creating failing tests to reproduce bugs
+- `ia-verification-before-completion` -- tests as primary verification evidence
 
 ### Tech-Specific Skills
 
 This skill provides generic test discipline. For framework-specific patterns, conventions, and tooling:
 
-- **Laravel/PHP** → `php-laravel` (PHPUnit, factories, feature/unit split, facade faking, data providers)
-- **React/TypeScript** → `react-frontend` (Vitest, RTL, component/hook patterns, Playwright E2E, mocking patterns)
+- **Laravel/PHP** → `ia-php-laravel` (PHPUnit, factories, feature/unit split, facade faking, data providers)
+- **React/TypeScript** → `ia-react-frontend` (Vitest, RTL, component/hook patterns, Playwright E2E, mocking patterns)
 
 Both skills are complementary -- this skill covers principles (why and what to test), tech-specific skills cover implementation (how to test in that framework). When both are active, framework-specific guidance takes precedence for tooling and conventions.

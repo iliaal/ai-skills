@@ -115,14 +115,14 @@ Task({
 ```
 
 **All review agents from compound-engineering:**
-- `architecture-strategist` - Architectural compliance
-- `code-simplicity-reviewer` - YAGNI and minimalism
-- `database-guardian` - Database safety and migration validation
-- `deployment-verification-agent` - Pre-deploy checklists
-- `kieran-reviewer` - Python and TypeScript best practices
-- `architecture-strategist` - Architecture, design patterns, and anti-patterns
-- `performance-oracle` - Performance analysis
-- `security-sentinel` - Security vulnerabilities
+- `ia-architecture-strategist` - Architectural compliance
+- `ia-code-simplicity-reviewer` - YAGNI and minimalism
+- `ia-database-guardian` - Database safety and migration validation
+- `ia-deployment-verification-agent` - Pre-deploy checklists
+- `ia-kieran-reviewer` - Python and TypeScript best practices
+- `ia-architecture-strategist` - Architecture, design patterns, and anti-patterns
+- `ia-performance-oracle` - Performance analysis
+- `ia-security-sentinel` - Security vulnerabilities
 
 ### Research Agents
 ```javascript
@@ -149,10 +149,10 @@ Task({
 ```
 
 **All research agents:**
-- `best-practices-researcher` - Best practices, framework docs, and implementation patterns
-- `git-history-analyzer` - Code archaeology
-- `learnings-researcher` - Search docs/solutions/
-- `repo-research-analyst` - Repository patterns
+- `ia-best-practices-researcher` - Best practices, framework docs, and implementation patterns
+- `ia-git-history-analyzer` - Code archaeology
+- `ia-learnings-researcher` - Search docs/solutions/
+- `ia-repo-research-analyst` - Repository patterns
 
 ### Design Agents
 ```javascript

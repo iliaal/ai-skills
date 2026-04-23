@@ -1,6 +1,6 @@
 # Authentication & Security
 
-For comprehensive security auditing (OWASP compliance, vulnerability scanning, checklist), use the `security-sentinel` agent. This reference covers Node.js-specific tooling and patterns only.
+For comprehensive security auditing (OWASP compliance, vulnerability scanning, checklist), use the `ia-security-sentinel` agent. This reference covers Node.js-specific tooling and patterns only.
 
 ## Authentication Pattern
 

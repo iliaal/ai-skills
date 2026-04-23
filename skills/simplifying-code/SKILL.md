@@ -26,7 +26,7 @@ description: >-
 3. **Identify targets** -- find the highest-impact simplification opportunities. Impact = readability and maintainability; prioritize: control flow -> naming -> duplication -> types (see Smell -> Fix table)
 4. **Apply in order** -- control flow → naming → duplication → data shaping → types. Structural changes first, cosmetic last
 5. **Verify** -- confirm no behavior change: tests pass, types check, imports resolve
-6. **Pre-submit scope audit** -- walk every changed line and ask "does the requested task explicitly require this line?" If no, revert it and list it as a follow-up under Residual Risks. Drive-by edits belong in a separate change, not the current patch. For the pre-edit complement on ambiguous-scope requests ("simplify my project"), see `verification-before-completion`'s Scope Confirmation gate.
+6. **Pre-submit scope audit** -- walk every changed line and ask "does the requested task explicitly require this line?" If no, revert it and list it as a follow-up under Residual Risks. Drive-by edits belong in a separate change, not the current patch. For the pre-edit complement on ambiguous-scope requests ("simplify my project"), see `ia-verification-before-completion`'s Scope Confirmation gate.
 
 ## Smell → Fix
 
@@ -83,7 +83,7 @@ Stop and ask before proceeding when:
 
 ## Orchestrator Mode (When Chained With Other Skills)
 
-When this skill is invoked by an orchestrator that also runs `code-review`, `writing-tests`, or `verification-before-completion` on the same scope, each sub-skill re-resolving scope independently wastes tokens and risks drift. Avoid this by resolving scope exactly once and passing a canonical block to every sub-skill.
+When this skill is invoked by an orchestrator that also runs `ia-code-review`, `ia-writing-tests`, or `ia-verification-before-completion` on the same scope, each sub-skill re-resolving scope independently wastes tokens and risks drift. Avoid this by resolving scope exactly once and passing a canonical block to every sub-skill.
 
 **Resolved scope format** — the orchestrator builds this once, before dispatching any sub-skill:
 
@@ -109,7 +109,7 @@ This prevents two failure modes: scope drift (sub-skill A simplifies one set of 
 
 ## Integration
 
-- `code-simplicity-reviewer` agent -- analysis-only pass producing a simplification report (no code changes). Use before refactoring to identify targets.
+- `ia-code-simplicity-reviewer` agent -- analysis-only pass producing a simplification report (no code changes). Use before refactoring to identify targets.
 
 ## Output
 

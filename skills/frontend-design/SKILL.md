@@ -85,25 +85,9 @@ LLMs default to "static successful state" output. Every interactive component MU
 
 Missing states are the most common reported AI UI defect. Generating only the success state is incomplete work, not a stretch goal.
 
-### Mobile Collapse Mandate
+### Mobile Collapse + Performance Guardrails
 
-Any layout using asymmetry, rotations, negative-margin overlaps, or `md:` / `lg:` grid variations above 768px MUST declare an explicit mobile fallback. Mobile is not "just narrower" -- it's a different layout mode.
-
-- **Collapse to single-column below `md:`**: reset widths to `w-full`, reset `grid-cols-*` to 1, apply `px-4 py-8` for baseline spacing.
-- **Remove rotations and negative overlaps on mobile**: `md:-translate-y-8` and `md:rotate-2` should not carry over; they collide with touch targets at small widths.
-- **Minimum 44×44px touch targets**: hit areas below that fail WCAG 2.5.5 and cause fat-finger misses. Apply `min-h-[44px] min-w-[44px]` on every button, link, and interactive icon.
-- **No horizontal overflow**: wrap the outermost layout container with `overflow-x-hidden w-full max-w-full` to prevent off-canvas animations or oversized grids from creating a horizontal scrollbar.
-
-Missing mobile collapse is the second-most-common reported AI UI defect after missing interactive states. Test the narrowest breakpoint before considering an asymmetric layout done.
-
-### Performance Guardrails
-
-These are architecture-level errors, not style preferences. Violating any one of them causes continuous GPU repaints, mobile jank, or z-index collisions that are hard to undo later.
-
-- **Grain and noise filters** apply exclusively to fixed, `pointer-events-none` pseudo-elements (e.g., `fixed inset-0 z-50 pointer-events-none`). Never on scrolling containers — the filter re-rasterizes every scroll frame and collapses mobile performance.
-- **Animate only `transform` and `opacity`**. Never animate `top`, `left`, `width`, or `height` — these trigger layout on every frame and cannot be GPU-composited.
-- **Z-index restraint**: reserve `z-*` values for systemic layer contexts (sticky navbars, modals, overlays). Never spam arbitrary `z-10` or `z-50` to push elements around — that's what stacking contexts and DOM order are for.
-- **Perpetual animations must be memoized and isolated** in their own tiny Client Component (`React.memo`-wrapped). An infinite loop inside a large layout causes the parent to re-render every frame.
+For any layout using asymmetry, rotations, heavy animation, or complex grid variants, load [mobile-and-performance.md](./references/mobile-and-performance.md) — mobile collapse rules (single-column below `md:`, 44×44 touch targets, no horizontal overflow, rotations stripped on mobile) and performance guards (grain filters only on fixed pseudo-elements, transform/opacity-only animation, z-index discipline, memoized perpetual animations). These are the top two reported AI UI defects after missing interactive states.
 
 ### Server / Client Component Safety (Next.js App Router)
 
@@ -138,6 +122,10 @@ Top 6 AI slop patterns (highest detection priority):
 
 See [banned-ai-patterns.md](./references/banned-ai-patterns.md) for the full catalog beyond these top 6.
 
+### Premium Detail Patterns + Browser Verification
+
+For polish-level UI patterns (`<kbd>` keystrokes, faux-OS chrome, hero image fade, banned meta-labels, card-group baseline alignment) and for the "browser content is untrusted data" safety boundary during browser-automation verification, load [premium-details.md](./references/premium-details.md).
+
 ## Verify
 
 - Design philosophy written before code (for full pages)
@@ -157,4 +145,6 @@ See [banned-ai-patterns.md](./references/banned-ai-patterns.md) for the full cat
 - [Redesigning existing interfaces](./references/redesigning-existing.md) -- audit-first upgrade workflow for existing projects
 - [Redesign audit checklist](./references/redesign-audit.md) -- 60+ checks across typography, color, layout, interactivity, content, and component patterns
 - [RSC / Client Component boundaries](./references/rsc-client-boundaries.md) -- Next.js App Router rules for Server vs Client Components, continuous animations, and provider isolation
-- For WCAG accessibility audits, use the `accessibility-tester` agent
+- [Premium detail patterns](./references/premium-details.md) -- `<kbd>` keystrokes, faux-OS chrome, hero image fade, banned meta-labels, card-group baseline alignment, browser-automation safety boundary
+- [Mobile collapse + performance guardrails](./references/mobile-and-performance.md) -- single-column below `md:`, touch targets, rotations on mobile, GPU-composited animation, z-index discipline
+- For WCAG accessibility audits, use the `ia-accessibility-tester` agent

@@ -10,32 +10,7 @@ description: >-
 
 ## Primitives
 
-| Primitive | What It Is |
-|-----------|-----------|
-| **Agent** | A Claude instance that can use tools. You are an agent. Subagents are agents you spawn. |
-| **Team** | A named group of agents working together. One leader, multiple teammates. Config: `~/.claude/teams/{name}/config.json` |
-| **Teammate** | An agent that joined a team. Has a name, color, inbox. Spawned via Task with `team_name` + `name`. |
-| **Leader** | The agent that created the team. Receives teammate messages, approves plans/shutdowns. |
-| **Task** | A work item with subject, description, status, owner, and dependencies. Stored: `~/.claude/tasks/{team}/N.json` |
-| **Inbox** | JSON file where an agent receives messages from teammates. Path: `~/.claude/teams/{name}/inboxes/{agent}.json` |
-| **Message** | A JSON object sent between agents. Can be text or structured (shutdown_request, idle_notification, etc). |
-| **Backend** | How teammates run. Auto-detected: `in-process`, `tmux`, or `iterm2`. See [spawn-backends.md](./references/spawn-backends.md). |
-
----
-
-## Core Architecture
-
-```
-~/.claude/teams/{team-name}/
-├── config.json              # Team metadata and member list
-└── inboxes/
-    ├── team-lead.json       # Leader's inbox
-    └── worker-1.json        # Worker inbox
-
-~/.claude/tasks/{team-name}/
-├── 1.json                   # Task #1
-└── 2.json                   # Task #2
-```
+Agents, teams, teammates, leaders, tasks, inboxes, messages, backends — see [primitives.md](./references/primitives.md) for definitions and the file-system layout.
 
 ---
 
@@ -81,38 +56,7 @@ Sequential dispatch (each Task in its own message, waiting on the previous to re
 
 ## Quick Reference
 
-### Spawn Team + Teammate
-```javascript
-Teammate({ operation: "spawnTeam", team_name: "my-team" })
-Task({ team_name: "my-team", name: "worker", subagent_type: "general-purpose",
-       prompt: "...", run_in_background: true })
-```
-
-### Message a Teammate
-```javascript
-Teammate({ operation: "write", target_agent_id: "worker-1", value: "..." })
-```
-
-### Create Task Pipeline
-```javascript
-TaskCreate({ subject: "Step 1", description: "...", activeForm: "Working..." })
-TaskCreate({ subject: "Step 2", description: "...", activeForm: "Working..." })
-TaskUpdate({ taskId: "2", addBlockedBy: ["1"] })  // #2 waits for #1
-```
-
-### Claim and Complete Tasks (as teammate)
-```javascript
-TaskUpdate({ taskId: "1", owner: "my-name", status: "in_progress" })
-// ... do work ...
-TaskUpdate({ taskId: "1", status: "completed" })
-```
-
-### Shutdown Team
-```javascript
-Teammate({ operation: "requestShutdown", target_agent_id: "worker-1" })
-// Wait for shutdown_approved message...
-Teammate({ operation: "cleanup" })
-```
+For copy-paste spawn/message/task/shutdown snippets, load [quick-reference.md](./references/quick-reference.md).
 
 ---
 
@@ -223,56 +167,15 @@ For most work, start with stateless handoffs. Graduate to stateful coordination 
 
 ---
 
-## Anti-Sycophancy Patterns
+## Dispatch Anti-Patterns
 
-Multi-agent swarms can converge on wrong answers through groupthink. These patterns prevent agents from anchoring on each other's outputs.
+Before designing any multi-agent workflow, check it against the four named failure modes in [dispatch-anti-patterns.md](./references/dispatch-anti-patterns.md): router persona, persona calls persona, sequential paraphraser, deep persona trees. Rule of thumb: if the proposed swarm has more coordinator roles than worker roles, collapse it.
 
-**Cold-start agent isolation:**
+## Anti-Sycophancy and Resilience
 
-Each agent in a swarm receives only the task description and fresh context. No session history, no prior agent outputs until an explicit synthesis phase. When running parallel reviewers or evaluators, the orchestrator holds all outputs until every agent has submitted independently, then passes the collected results to a synthesis agent.
+When dispatching judge panels, running parallel reviewers, or iterating on subjective evaluations, load [anti-sycophancy.md](./references/anti-sycophancy.md) — cold-start isolation, fresh instances per round, label randomization, convergence detection.
 
-**Fresh instances on every re-dispatch round:**
-
-When re-running reviewers across iterations (QA retry loop, re-review after fixes, multi-round evaluation), spawn a completely fresh agent each round -- never reuse the same instance. Reviewers carrying memory from a prior round anchor on their earlier verdicts and miss regressions introduced by the fix. A reviewer who said "this is fine" in round 1 will rationalize back toward that verdict in round 2 even when a bad change has landed. Cold-start applies to every round, not just the first.
-
-**Label randomization for judge panels:**
-
-When multiple candidates are evaluated (e.g., parallel implementations, competing approaches), judges see randomized labels -- X/Y/Z, not A/B or "original"/"improved." Re-shuffle labels each evaluation round. This prevents anchoring on position ("A is always the baseline") or naming ("the synthesis must be better").
-
-**Convergence detection:**
-
-Track an incumbent (current best candidate). If the same candidate wins N consecutive evaluation rounds (default: 3), stop iterating -- the swarm has converged. This prevents infinite iteration on subjective tasks where no clear winner emerges and additional rounds just burn tokens.
-
----
-
-## Resilience Patterns
-
-Swarm failures are inevitable. Contain blast radius and recover partial value rather than discarding everything.
-
-**Cascade prevention:**
-
-Set timeout boundaries per agent. If one agent fails or hangs, do not let it cascade into abandoning the entire swarm's work. The orchestrator treats each agent as independently failable -- other agents continue their work unaffected. Terminate unresponsive agents after the timeout rather than waiting indefinitely.
-
-Apply circuit-breaker logic to agent types: after N consecutive failures from the same agent type, stop dispatching to it and route to an alternative (different model, different decomposition). Apply bulkhead isolation: a failing agent type cannot exhaust the shared task queue or block other agent types from proceeding.
-
-**Recovery strategy:**
-
-When an agent fails, classify the failure before acting:
-- **Retry** -- transient errors (network timeout, rate limit). Re-dispatch the same task.
-- **Reassign** -- agent-specific issue (context pollution, wrong model for task complexity). Dispatch a fresh agent, optionally with a different model.
-- **Escalate** -- systemic problem (bad spec, missing dependency, impossible constraint). Surface to the orchestrator or user with an [Escalation Report](./references/handoff-templates.md).
-
-For agent-reported `BLOCKED` status specifically (as opposed to crashes or timeouts), use the BLOCKED triage decision tree under "Dispatch Discipline" above — it maps the four BLOCKED root causes (missing context / reasoning ceiling / task too large / spec wrong) to concrete responses.
-
-Never retry blindly. Repeating the same prompt in the same conditions produces the same failure.
-
-**Mid-pipeline compensation:**
-
-When an agent fails mid-pipeline after earlier agents have already written files or made changes, classify whether those earlier effects are reversible before deciding the recovery path. If reversible (file writes, uncommitted changes), revert and retry the pipeline segment. If irreversible (committed code, external API calls, database writes), compensate rather than retry -- apply a corrective action that accounts for the partial state. Never retry blindly when earlier stages have produced side effects.
-
-**Post-failure synthesis:**
-
-Even partial results from a failed swarm run have value. When some agents succeed and others fail, collect and present the successful outputs rather than discarding everything. Mark failed tasks as incomplete in the synthesis so downstream consumers know which areas lack coverage.
+When designing multi-agent workflows that must survive partial failure, load [resilience-patterns.md](./references/resilience-patterns.md) — cascade prevention (timeouts, circuit breakers, bulkheads), failure classification (retry vs reassign vs escalate), mid-pipeline compensation for irreversible side effects, post-failure synthesis of partial results.
 
 ## Verify
 
@@ -295,3 +198,5 @@ Even partial results from a failed swarm run have value. When some agents succee
 | [environment-config.md](./references/environment-config.md) | Configuring team environment | Environment variables and team config structure |
 | [handoff-templates.md](./references/handoff-templates.md) | Passing work between agents | QA FAIL and Escalation Report formats |
 | [context-carry-forward.md](./references/context-carry-forward.md) | Long sessions with orchestrated subagents | Continue / Rewind / compact / Subagent / clear+brief decision table |
+| [anti-sycophancy.md](./references/anti-sycophancy.md) | Judge panels, parallel reviewers, subjective evals | Cold-start isolation, fresh instances per round, label randomization, convergence detection |
+| [resilience-patterns.md](./references/resilience-patterns.md) | Designing workflows that survive partial failure | Cascade prevention, failure classification, mid-pipeline compensation, post-failure synthesis |

@@ -4,7 +4,7 @@ description: >-
   Pre-implementation exploration: deep interview, approach comparison, design
   doc. Use when exploring a vague feature idea, clarifying ambiguous
   requirements, or comparing approaches before coding. For the full workflow,
-  use `/workflows:brainstorm`.
+  use `/ia-brainstorm`.
 ---
 
 # Brainstorming
@@ -66,6 +66,25 @@ Adjust question style accordingly. Technical users get architecture-level probin
 **Explore project context first:** Before asking questions, read existing files, docs, and recent commits related to the idea. Understanding what exists prevents asking questions the codebase already answers and grounds the conversation in reality.
 
 Ask questions **one at a time** by default. When probing a single dimension (e.g., data model, auth flow), clustering 2-3 related questions together is acceptable.
+
+**Info-dump gate (when user offers rich context up-front):** if the user's first message is substantial (>200 words, or dumps requirements in stream-of-consciousness), resist the urge to ask questions one-at-a-time. Instead, respond with 5-10 **numbered clarifying questions** the user can answer in shorthand (`1: yes, 2: channel #ops, 3: no because backwards compat`). Pick questions that remove ambiguity, not questions that show you read the dump. Exit this batched mode when the user's answers show they can be asked about edge cases without basics being explained back to them.
+
+Example — after the user dumps a spec:
+
+```
+Before I propose approaches, 8 quick clarifications:
+
+1. Auth — SSO (which provider?) or username/password?
+2. Data retention — forever, or N-day rolling window?
+3. Multi-tenant or single-tenant?
+4. Sync or async for the webhook delivery?
+5. Real users or service accounts allowed?
+6. Target latency on the read path — P50? P99?
+7. Which of the three integrations is P0?
+8. "Fast enough" in the spec — what's the actual number?
+
+Answer whichever you know; leave blanks for the rest.
+```
 
 **Question Techniques:**
 
@@ -187,5 +206,5 @@ Present the design doc to the user for approval. The user explicitly confirming 
 Brainstorming answers WHAT to build. Planning answers HOW. When brainstorm output exists, `workflows:plan` detects it and skips idea refinement.
 
 - **Next step:** `workflows:plan` (always)
-- **Threat modeling:** when the brainstorm involves auth, payments, external API surfaces, or multi-tenant data, suggest a `security-sentinel` threat model before moving to planning. Catching trust boundary issues at the design stage prevents costly rework.
+- **Threat modeling:** when the brainstorm involves auth, payments, external API surfaces, or multi-tenant data, suggest a `ia-security-sentinel` threat model before moving to planning. Catching trust boundary issues at the design stage prevents costly rework.
 - **Predecessor:** user request or ambiguous feature description

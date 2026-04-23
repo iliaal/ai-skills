@@ -190,64 +190,16 @@ Add posture signals in the phase header: `## Phase 2: Auth middleware [test-firs
 
 ## Plan Deepening
 
-When asked to "deepen" or "strengthen" an existing plan, don't re-run the full planning workflow. Instead:
+When asked to "deepen" or "strengthen" an existing plan, load [plan-deepening.md](./references/plan-deepening.md) — targeted research workflow (additive, not restructuring), per-section enhancement format, and Enhancement Summary block at the plan head. Orchestrated by the `/ia-deepen-plan` command.
 
-1. Read the existing plan file
-2. Identify phases or tasks that are vague, under-specified, or missing verification steps
-3. For each weak area, run targeted research (read relevant code, check existing patterns, verify assumptions)
-4. Expand the weak sections with concrete file paths, code patterns, and verification steps
-5. Preserve everything that's already specific enough
+## Execution Handoff
 
-Deepening is additive — it fills gaps without restructuring what already works. The `/deepen-plan` command orchestrates this with parallel research agents per section.
+When a plan is complete and ready to execute, offer the user an explicit choice rather than drifting into implementation. Present two options:
 
-### Enhancement format per section
+1. **Subagent-driven** (recommended for multi-phase plans, independent slices, or worktree-isolated work): dispatch each phase to a focused subagent with a self-contained task prompt (Objective / Owned Files / Interface Contracts / Acceptance Criteria / Out of Scope). Orchestrator integrates results and verifies between phases. See `ia-orchestrating-swarms` for dispatch discipline.
+2. **Inline execution**: main session runs the plan phase by phase. Use when phases are tightly coupled, require shared context that would be expensive to rehydrate, or the total work fits in one session without compaction risk.
 
-When a section is deepened by research agents, append the findings using this structure (preserve the original section content above it):
-
-```markdown
-## [Original Section Title]
-
-[Original content preserved verbatim]
-
-### Research Insights
-
-**Best Practices:**
-- [Concrete recommendation with rationale]
-
-**Performance Considerations:**
-- [Optimization opportunity or benchmark to target]
-
-**Implementation Details:**
-​```[language]
-// Concrete code example from research
-​```
-
-**Edge Cases:**
-- [Edge case and handling strategy]
-
-**References:**
-- [Documentation URL]
-```
-
-### Enhancement summary block
-
-At the top of the deepened plan, add a summary so reviewers can see what changed without diffing:
-
-```markdown
-## Enhancement Summary
-
-**Deepened on:** [Date]
-**Sections enhanced:** [Count]
-**Research agents used:** [List]
-
-### Key Improvements
-1. [Major improvement]
-
-### New Considerations Discovered
-- [Important finding]
-```
-
-Both blocks are owned by this skill — commands that orchestrate deepening (e.g., `/deepen-plan`) delegate format decisions here rather than restating the templates.
+State the recommendation with a one-sentence reason, then wait for the user to pick. Do not auto-start either path — drifting from "plan approved" to "plan in progress" without the user picking a handoff mode is how orchestration discipline silently decays.
 
 ## Verify
 
@@ -262,8 +214,8 @@ Both blocks are owned by this skill — commands that orchestrate deepening (e.g
 ## Integration
 
 - **This skill** is methodology (file persistence, phase sizing, context management). `workflows:plan` is the structured workflow (research agents, issue templates). Use this skill's principles during any planning; use `workflows:plan` for full feature plans.
-- **Architecture decisions:** when the plan involves significant trade-offs (choosing between approaches, accepting constraints), use `/adr` to document the decision and what was given up. ADRs outlive the plan.
-- **Threat modeling:** when the plan introduces auth flows, payment handling, external API surfaces, or new trust boundaries, dispatch the `security-sentinel` agent in threat-model mode before implementation. Architectural security gaps are cheaper to fix in the plan than in the code.
-- **Predecessor:** `brainstorming` -- use first when requirements are ambiguous. When a brainstorm spec exists (`docs/brainstorms/`), use it as input and skip idea refinement
-- **Prose quality:** `writing` -- use to humanize plan language and remove AI slop from plan documents
+- **Architecture decisions:** when the plan involves significant trade-offs (choosing between approaches, accepting constraints), use `/ia-adr` to document the decision and what was given up. ADRs outlive the plan.
+- **Threat modeling:** when the plan introduces auth flows, payment handling, external API surfaces, or new trust boundaries, dispatch the `ia-security-sentinel` agent in threat-model mode before implementation. Architectural security gaps are cheaper to fix in the plan than in the code.
+- **Predecessor:** `ia-brainstorming` -- use first when requirements are ambiguous. When a brainstorm spec exists (`docs/brainstorms/`), use it as input and skip idea refinement
+- **Prose quality:** `ia-writing` -- use to humanize plan language and remove AI slop from plan documents
 - **Execution handoff:** after the plan is approved, proceed to `workflows:work` or execute inline

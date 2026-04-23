@@ -54,7 +54,7 @@ Run once to gather evidence showing WHERE it breaks, then investigate that speci
 
 **3. Hypothesize and test** -- one change at a time. If a hypothesis is wrong, fully revert before testing the next. Use `git bisect` to find regressions efficiently. **Scope lock**: after forming a hypothesis, identify the narrowest affected directory or file set. Do not edit code outside that scope during the debug session. If the fix requires changes elsewhere, update the hypothesis first.
 
-**4. Fix and verify** -- create a failing test FIRST, then fix. Run the test. Confirm the original reproduction case passes. No completion claims without fresh verification evidence (see `verification-before-completion`).
+**4. Fix and verify** -- create a failing test FIRST, then fix. Run the test. Confirm the original reproduction case passes. No completion claims without fresh verification evidence (see `ia-verification-before-completion`).
 
 ## Debug Report
 
@@ -144,11 +144,11 @@ See [specialized-patterns.md](./references/specialized-patterns.md) for anti-pat
 
 This skill is referenced by:
 - `workflows:work` -- during task execution for bug investigation
-- `writing-tests` -- creating failing tests to reproduce bugs
-- `verification-before-completion` -- before claiming a bug is fixed
-- `bug-reproduction-validator` agent -- follows Root Cause Analysis methodology
-- `infrastructure-engineer` agent -- follows Postmortem template for production incidents
-- `reproduce-bug` command -- automated bug reproduction workflow
+- `ia-writing-tests` -- creating failing tests to reproduce bugs
+- `ia-verification-before-completion` -- before claiming a bug is fixed
+- `ia-bug-reproduction-validator` agent -- follows Root Cause Analysis methodology
+- `ia-infrastructure-engineer` agent -- follows Postmortem template for production incidents
+- `ia-reproduce-bug` command -- automated bug reproduction workflow
 
 ## Postmortem
 

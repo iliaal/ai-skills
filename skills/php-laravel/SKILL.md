@@ -65,7 +65,7 @@ Use these when applicable -- do not add explanatory comments in generated code (
 - Always add index on foreign keys and frequently filtered columns
 - Down method: include rollback logic or `Schema::dropIfExists()` for new tables
 - Separate schema and data migrations -- data backfills in their own migration file, not mixed with DDL
-- Renames/removals use expand-contract: add new column → backfill → switch reads → drop old (see `postgresql` skill for the full pattern)
+- Renames/removals use expand-contract: add new column → backfill → switch reads → drop old (see `ia-postgresql` skill for the full pattern)
 - Never edit a migration that has run in a shared environment -- write a new one
 
 ## Eloquent
@@ -123,11 +123,23 @@ Use these when applicable -- do not add explanatory comments in generated code (
 - `Gate::forUser($user)->allows('update', $post)` for authorization assertions
 - `assertDatabaseHas` / `assertDatabaseMissing` to verify persistence
 - Coverage target: 80%+ with `pcov` or `XDEBUG_MODE=coverage` in CI
-For generic test discipline (anti-patterns, mock rules, rationalization resistance), see the `writing-tests` skill — this skill covers Laravel-specific patterns that sit on top of that foundation.
+For generic test discipline (anti-patterns, mock rules, rationalization resistance), see the `ia-writing-tests` skill — this skill covers Laravel-specific patterns that sit on top of that foundation.
 See [testing patterns and examples](./references/testing.md) for PHPUnit essentials, data providers, and running tests.
 See [feature testing](./references/feature-testing.md) for auth, validation, API, console, and DB assertions.
 See [mocking and faking](./references/mocking-and-faking.md) for facade fakes and action mocking.
 See [factories](./references/factories.md) for states, relationships, sequences, and afterCreating hooks.
+
+## Common Pitfalls
+
+Concrete Laravel footguns that recur across projects. Each is a real class of bug caught in production review; all are invisible to PHPStan and feature tests alone.
+
+**Query-builder `update()` silently skips observers and audit events.** `Model::query()->where(...)->update([...])` and `Relation::update([...])` are query-builder operations — they do NOT fire Eloquent model events. Any observer registered via `#[ObservedBy]`, OwenIt Auditable trait, or `static::saving/updating` callback is bypassed. No audit row, no cascading cleanup, no dispatched jobs. Fix: `lockForUpdate() + save()` inside a transaction gives the same idempotent-atomic semantics while still firing events. Reach for raw mass update only with a `// intentionally bypasses <Observer>` comment documenting the bypass.
+
+**Observer `deleting()` cleanup at parent scope nukes siblings.** If a `DocumentObserver::deleting()` calls `Storage::deleteDirectory($parent->uploadPath)` and the parent has a `hasMany` of Documents, deleting one child wipes storage for all siblings while their DB rows remain pointing at non-existent keys. Detection: when any single-row `$model->delete()` has an Observer, open `app/Observers/{Model}Observer.php` and check whether `deleting()` / `deleted()` hooks operate at parent scope or single-row scope. Fix: scope cleanup to the row's own storage paths, or move cleanup out of the observer into an Action class that knows the sibling count.
+
+**`chunkById + json_decode + mutate + json_encode + update` loses concurrent writes on jsonb columns.** The window between the SELECT populating `$row->metadata` and the per-row UPDATE is milliseconds; any user save in that window is silently overwritten by the migration's stale snapshot. Fix: use in-place `DB::raw("jsonb_set(metadata, '{path}', ...)")` for shallow edits, or `lockForUpdate()` inside the chunk for arbitrary PHP logic. Default `chunkById + decode/encode` is only safe during a maintenance window with writes blocked.
+
+**`date:<fmt>` cast format only reaches `$model->toArray()`, NOT `JsonResource::resolve()`.** A `JsonResource` that does `return ['started_at' => $this->resource->started_at]` emits ISO 8601 from Carbon's own `JsonSerializable`, ignoring the cast format entirely. Changing `date` to `date:m/d/Y` is NOT an API contract change unless the code path uses `$model->toArray()` directly (Filament admin, DTOs pulling from `toArray()`, direct `json_encode($model)`). Verify with a live reproducer before flagging as wire-format regression.
 
 ## Discipline
 
@@ -140,10 +152,7 @@ See [factories](./references/factories.md) for states, relationships, sequences,
 
 ## Production Performance
 
-- **OPcache**: enable in production (`opcache.enable=1`), set `opcache.memory_consumption=256`, `opcache.max_accelerated_files=20000`. Validate with `opcache_get_status()`.
-- **JIT**: enable with `opcache.jit_buffer_size=100M`, `opcache.jit=1255` (tracing). Biggest gains on CPU-bound code (math, loops), minimal impact on I/O-bound Laravel requests.
-- **Preloading**: `opcache.preload=preload.php` -- preload framework classes and hot app classes. Use `composer dumpautoload --classmap-authoritative` in production.
-- **Laravel-specific**: `php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache` -- run on every deploy. `composer install --optimize-autoloader --no-dev` for production.
+For OPcache + JIT + preloading configuration and Laravel-specific deploy caches (`config:cache`, `route:cache`, etc.), load [production-performance.md](./references/production-performance.md).
 
 ## References
 
@@ -152,3 +161,4 @@ See [factories](./references/factories.md) for states, relationships, sequences,
 - [feature-testing.md](./references/feature-testing.md) -- Auth, validation, API, console, DB assertions
 - [mocking-and-faking.md](./references/mocking-and-faking.md) -- Facade fakes, action mocking, Mockery
 - [factories.md](./references/factories.md) -- States, relationships, sequences, afterCreating hooks
+- [production-performance.md](./references/production-performance.md) -- OPcache, JIT, preloading, Laravel deploy caches

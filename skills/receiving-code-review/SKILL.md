@@ -141,18 +141,18 @@ State the correction factually: "Checked this, you're correct because [reason]. 
 
 When invoked programmatically (by another skill or command with `mode:headless`), skip interactive prompts and return structured triage results. See [headless-mode.md](./references/headless-mode.md) for the classification table (AUTO-FIX / AUTO-DECLINE / ESCALATE), output format, and constraints.
 
-## Scope vs `pr-comment-resolver` Agent
+## Scope vs `ia-pr-comment-resolver` Agent
 
-This skill and the `pr-comment-resolver` agent handle different situations:
+This skill and the `ia-pr-comment-resolver` agent handle different situations:
 
-| | This skill (interactive) | This skill (headless) | `pr-comment-resolver` agent |
+| | This skill (interactive) | This skill (headless) | `ia-pr-comment-resolver` agent |
 |---|---|---|---|
 | **When** | Interactive review requiring judgment | Programmatic triage by another skill/command | Implementing a single pre-triaged comment |
 | **Approach** | Verify, evaluate, potentially push back | Auto-classify and return triage results | Implement a single pre-classified change |
 | **Skepticism** | High -- check correctness first | High -- same rules, automated classification | Low -- comments are pre-triaged |
 | **Use for** | Unclear suggestions, architectural feedback | Batch triage before dispatching resolvers | Clear-cut fixes, style nits, typos |
 
-When the `pr-comment-resolver` agent encounters feedback that requires judgment (architectural decisions, debatable trade-offs), it should escalate rather than implement.
+When the `ia-pr-comment-resolver` agent encounters feedback that requires judgment (architectural decisions, debatable trade-offs), it should escalate rather than implement.
 
 ## Examples
 
@@ -186,6 +186,6 @@ When the `pr-comment-resolver` agent encounters feedback that requires judgment 
 ## Integration
 
 This skill pairs with:
-- `code-review` -- the outbound side (requesting reviews). Their action-routing tiers (`safe_auto`/`gated_auto`/`manual`/`advisory`) roughly map to this skill's AUTO-FIX / ESCALATE-for-approval / ESCALATE / FYI.
-- `pr-comment-resolver` agent -- for mechanical PR comment resolution (see scope table above)
-- `verification-before-completion` -- verify each fix before marking resolved
+- `ia-code-review` -- the outbound side (requesting reviews). Their action-routing tiers (`safe_auto`/`gated_auto`/`manual`/`advisory`) roughly map to this skill's AUTO-FIX / ESCALATE-for-approval / ESCALATE / FYI.
+- `ia-pr-comment-resolver` agent -- for mechanical PR comment resolution (see scope table above)
+- `ia-verification-before-completion` -- verify each fix before marking resolved

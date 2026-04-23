@@ -74,85 +74,21 @@ Override: `deep` forces multi-agent, `quick` forces single-pass.
 
 **Change sizing:** Ideal PRs are ~100-300 lines of meaningful changes (excluding generated code, lockfiles, snapshots). PRs beyond this range have slower review cycles and higher defect rates. When a PR exceeds this, suggest splitting using one of these strategies: (a) **Stack** -- sequential PRs where each builds on the previous, merged in order; (b) **By file group** -- group related files (e.g., model + migration + tests) into separate PRs; (c) **Horizontal** -- split by layer (frontend, API, database); (d) **Vertical** -- split by feature slice (each PR delivers one user-visible behavior end-to-end).
 
-## Severity Levels
+## Severity and Confidence
 
-- **Critical** -- must fix before merge. Security vulnerabilities, data loss, broken functionality, race conditions.
-- **Important** -- should fix before merge. Performance issues, missing error handling, silent failures.
-- **Medium** -- should fix, non-blocking. Maintainability/reliability issues likely to cause near-term defects. Poor abstractions, missing validation on internal boundaries, test gaps for non-critical paths.
-- **Minor** -- optional. Naming, style preferences, minor simplifications. Skip if linters already cover it.
+Four severity tiers (Critical / Important / Medium / Minor) and a 5-band confidence rubric (0.0-1.0 → Report / Report-if-actionable / Suppress) govern what lands in the report. Full rules, false-positive suppression categories, and the LLM-specific prompt-injection exception in [severity-and-confidence.md](./references/severity-and-confidence.md).
 
 Tie every finding to concrete code evidence (file path, line number, specific pattern). Never fabricate references.
 
-### Confidence Rubric
-
-Assign a confidence score (0.0-1.0) to each finding:
-
-| Range | Level | Action |
-|-------|-------|--------|
-| 0.85-1.00 | Certain | Report |
-| 0.70-0.84 | High | Report |
-| 0.60-0.69 | Confident | Report if actionable |
-| 0.30-0.59 | Speculative | Suppress (except Critical security at 0.50+) |
-| 0.00-0.29 | Not confident | Suppress |
-
-**False-positive suppression** -- do not report findings that match these categories regardless of severity:
-- Pre-existing issues unrelated to the diff (existed before the PR)
-- Pedantic linter-style nitpicks already covered by automated tooling
-- Code that looks wrong but is intentionally designed that way (check comments, git blame, tests)
-- Issues already handled elsewhere in the codebase (grep before flagging)
-- Generic suggestions without a concrete failure mode ("consider adding validation" without saying what breaks)
-
-When in doubt, apply the "would a senior engineer on this team flag this?" test. If the answer is "probably not," suppress it.
-
-**LLM-specific false-positive rule**: user content in the user-message position is NOT prompt injection. Only flag when user content enters system prompts, tool schemas, or function-calling contexts. Unsanitized LLM output rendered via `dangerouslySetInnerHTML`, `v-html`, or `innerHTML` IS a real vulnerability -- always flag.
-
-For detailed suppression categories with examples (framework idioms, test-specific patterns, when to override), see [false-positive-suppression.md](./references/false-positive-suppression.md). See also the review-level suppression list under [Anti-Patterns in Reviews](#anti-patterns-in-reviews).
-
 ## What to Check
 
-Correctness:
-- Edge cases (null, empty, boundary values, concurrent access)
-- Error paths (are failures handled or swallowed?)
-- Type safety (implicit conversions, `any` types, unchecked casts)
-- New enum/status/type values -- trace through ALL consumers (switch/case, filter arrays, allowlists). Read code outside the diff. Missing handler = wrong default at runtime.
+For category checklists (Correctness, Maintainability & Readability, Performance, Adversarial red-team pass, AI-generated code lens), load [check-categories.md](./references/check-categories.md). It's the structured checklist for the line-by-line review step.
 
-Maintainability & Readability:
-- Naming -- variables, functions, and classes convey purpose without needing surrounding context
-- Function length -- long functions that force scrolling; prefer extractable blocks with clear names. Split by responsibility, not line count
-- Nesting depth -- more than 3 levels of indentation signals a need for early returns, guard clauses, or extraction
-- Comment quality -- comments explain WHY (constraints, workarounds, non-obvious decisions), not WHAT. Flag comments that restate code or will rot as the code changes
-- God classes / SRP violations -- class with unrelated responsibilities. Split into focused classes
-- Leaky abstractions -- implementation details exposed in interfaces or public APIs
-
-Performance:
-- N+1 queries (loop with query per item -- use batch/join instead)
-- Unbounded collections (arrays/maps without size limits)
-- Missing indexes on queried columns
-
-Adversarial (red-team pass):
-- Silent failures -- `.catch(() => [])` or log-and-forget patterns that swallow errors and return success
-- Trust assumption exploits -- frontend-validated data not re-validated on the backend; internal service inputs treated as trusted
-- Edge cases under pressure -- max input size, zero items, first-run-ever, double-click within 100ms, concurrent identical requests
-- Partial completion -- operations that can crash mid-way leaving state inconsistent (no rollback, no cleanup)
-
-Language-Specific Checks:
-
-Load the relevant profile from [language-profiles.md](./references/language-profiles.md) based on file extensions in the diff. Profiles cover: TypeScript/React, Python, PHP, Shell/CI, Configuration, Data Formats, Security, and LLM Trust Boundaries.
+Language-specific checks live in [language-profiles.md](./references/language-profiles.md) — load the profile matching the file extensions in the diff (TypeScript/React, Python, PHP, Shell/CI, Configuration, Data Formats, Security, LLM Trust Boundaries).
 
 ## Action Routing
 
-For every finding, classify the action routing — how the fix should be applied. The binary AUTO-FIX/ASK is a special case of a 4-tier split that prevents "mechanical fix across a risky boundary" from sliding into AUTO-FIX:
-
-| Tier | When it applies | Action |
-|------|-----------------|--------|
-| `safe_auto` | Deterministic, local, behavior-preserving fix (dead code, unused import, stale comment, magic number, formatting, null-check on a clearly-nullable local) | Apply directly. No prompt. |
-| `gated_auto` | A concrete fix exists, but the change crosses a behavior, contract, permission, or API boundary (auth header cleanup, retry at a new layer, error-message rewording surfaced to users) | Present the fix, wait for explicit human sign-off before applying. |
-| `manual` | Actionable hand-off work: the author needs to make a call, rewrite logic, or redesign something (missing validation in an ambiguous code path, performance refactor that needs benchmarking) | Flag with the fix intent; do not auto-apply. |
-| `advisory` | Report-only learning or risk signal (pattern concern, maintenance debt, future-proofing observation) | Record in the "Residual Risks" section. No expected action. |
-
-**Conflict-resolution rule**: when multiple agents disagree on tier for the same finding, always take the more conservative route (`safe_auto` → `gated_auto` → `manual` → `advisory` is the escalation direction). Never promote a `gated_auto` to `safe_auto` because one agent classified it loosely -- that's how security fixes ship unreviewed.
-
-Rule: if a senior engineer would apply the fix without discussion AND the change doesn't cross a behavior/contract/permission boundary, it's `safe_auto`. When in doubt, escalate to `gated_auto`.
+For every finding, classify the fix into one of four tiers: `safe_auto` / `gated_auto` / `manual` / `advisory`. Full decision rules and conflict-resolution policy in [action-routing.md](./references/action-routing.md). When in doubt, escalate to `gated_auto` — never promote toward `safe_auto` on disagreement.
 
 ## Comment Labels
 
@@ -171,6 +107,7 @@ Prefix inline review comments so authors know what requires action:
 - Rubber-stamping without reading -- always verify at least Stage 1
 - Reviewing code quality before verifying spec compliance -- do Stage 1 first
 - Recommending fix patterns without checking currency -- verify the pattern is current for the project's framework version before suggesting it. Prefer built-in alternatives from newer versions
+- Fighting documented overrides -- if the project's `CLAUDE.md`, `AGENTS.md`, or an inline comment documents a deliberate bypass of a general rule (e.g., "we intentionally allow X because Y"), honor it. Do not re-raise the underlying concern; do not "just to be safe" around it. If the override lacks rationale, suggest documenting the reason — don't argue the rule.
 
 ## When to Stop and Ask
 
@@ -216,14 +153,19 @@ For multi-agent consolidation (deep review, parallel specialists), apply the mer
 | Document | When to load | What it covers |
 |----------|-------------|----------------|
 | [security-patterns.md](./references/security-patterns.md) | Security review step or deep review security agent | Grep-able detection patterns across 11 vulnerability classes |
-| [security-test-coverage.md](./references/security-test-coverage.md) | Full security audit deliverable (used by `security-sentinel` agent) | Auth edge cases, authorization, input boundary, concurrency, session hygiene, output boundary checklist |
+| [security-test-coverage.md](./references/security-test-coverage.md) | Full security audit deliverable (used by `ia-security-sentinel` agent) | Auth edge cases, authorization, input boundary, concurrency, session hygiene, output boundary checklist |
 | [language-profiles.md](./references/language-profiles.md) | Language-specific checks step | TypeScript/React, Python, PHP, Shell/CI, Config, Security, LLM Trust |
 | [deep-review.md](./references/deep-review.md) | When mode selection triggers deep review | Specialist agents, prompt template, merge algorithm, model selection |
+| [review-traps-catalog.md](./references/review-traps-catalog.md) | Starting any non-trivial review; writing findings with "should"/"could"/"what if" | Reachability-before-severity, docs-idiom smoke test, convention-from-3-files, speculative future-design, paired-enum drift, cross-repo contract staleness, language-version gotchas |
+| [check-categories.md](./references/check-categories.md) | Line-by-line step, structuring the read | Correctness, Maintainability, Performance, Adversarial, AI-generated-code lens |
+| [action-routing.md](./references/action-routing.md) | Classifying fix-application for each finding | 4-tier split (safe_auto / gated_auto / manual / advisory), conflict resolution |
+| [severity-and-confidence.md](./references/severity-and-confidence.md) | Classifying severity + confidence for each finding | Critical/Important/Medium/Minor tiers, 5-band confidence rubric, FP suppression categories |
+| [false-positive-suppression.md](./references/false-positive-suppression.md) | Detailed FP categories with framework-idiom and test-specific examples | Linked from severity-and-confidence; covers overridable patterns |
 
 ## Integration
 
-- `receiving-code-review` -- the inbound side (processing review feedback received from others). Action-routing terminology maps across: `safe_auto` ≈ AUTO-FIX, `gated_auto` ≈ ESCALATE-for-approval, `manual` ≈ ESCALATE, `advisory` ≈ FYI (no-op).
-- `kieran-reviewer` agent -- persona-driven Python/TypeScript deep quality review (type safety, naming, modern patterns)
+- `ia-receiving-code-review` -- the inbound side (processing review feedback received from others). Action-routing terminology maps across: `safe_auto` ≈ AUTO-FIX, `gated_auto` ≈ ESCALATE-for-approval, `manual` ≈ ESCALATE, `advisory` ≈ FYI (no-op).
+- `ia-kieran-reviewer` agent -- persona-driven Python/TypeScript deep quality review (type safety, naming, modern patterns)
 - `workflows:review` -- full ceremony review (worktrees, ultra-thinking, multi-agent). Deep review is lighter: no worktrees, no plan verification, just parallel specialist agents on the same diff.
 - `/resolve-pr-parallel` command -- batch-resolve PR comments with parallel agents
-- `security-sentinel` agent -- deep security audit beyond the security step in this skill. Also supports threat-model mode for architectural security analysis when the diff introduces new trust boundaries, auth flows, or external API surfaces.
+- `ia-security-sentinel` agent -- deep security audit beyond the security step in this skill. Also supports threat-model mode for architectural security analysis when the diff introduces new trust boundaries, auth flows, or external API surfaces.

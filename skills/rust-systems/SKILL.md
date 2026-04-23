@@ -44,6 +44,26 @@ crates/
 - Feature flags belong on the crate that introduces the dependency, not re-exported through the workspace root.
 - **Library crates expose one stable facade**: a thin `lib.rs` with a `//!` module doc comment stating purpose, followed by `pub use` re-exports of the public surface. Consumers learn one import path per concept; internal module layout can be reorganized without breaking callers.
 - **Feature gates must error, never silently degrade.** If runtime config requests a capability the binary wasn't compiled with (e.g. `device = "gpu"` on a non-CUDA build), fail at startup with a clear error. Silent fallback produces different behavior from what the operator configured, often without anyone noticing.
+- **Centralize lints at the workspace root** with `[workspace.lints.*]`. Every member crate inherits the same ruleset — no drift between crates, no per-crate `#![deny(...)]` stacks. Example:
+
+  ```toml
+  [workspace.lints.rust]
+  unsafe_code = "warn"
+  missing_docs = "warn"
+
+  [workspace.lints.clippy]
+  all = { level = "warn", priority = -1 }
+  pedantic = { level = "warn", priority = -1 }
+  nursery = { level = "warn", priority = -1 }
+  module_name_repetitions = "allow"
+  must_use_candidate = "allow"
+  ```
+
+  Each member crate opts in with `[lints] workspace = true` in its own `Cargo.toml`. Changing a lint in one place updates every crate.
+
+## Build Profiles
+
+When tuning Cargo build profiles (release LTO, release-dbg symbols, release-min for distributable binaries) or adding dev-machine speedups (mold linker, `target-cpu=native`, share-generics), load [build-profiles.md](./references/build-profiles.md).
 
 ## Error Handling
 
@@ -65,6 +85,13 @@ Split by crate role:
 - Reach for `Arc<T>` only when sharing across threads. Single-threaded sharing uses `Rc<T>` or references.
 - `Cow<'_, str>` when a function sometimes allocates and sometimes borrows (e.g. normalization).
 - Lifetime elision handles 90% of cases. If you're writing `'a` in more than one signature, reconsider whether that type should own its data instead.
+- **`bytes::Bytes` for zero-copy slicing** of shared immutable buffers — network parsers, frame decoders, protocol handlers. `BytesMut` for building buffers that `split_to` / `split_off` into `Bytes` without reallocation. Prefer `Bytes` over `Arc<Vec<u8>>` when slicing is the dominant access pattern.
+- **Reduce hot-path heap allocations** with stack-or-inline collections when the typical size is small and known:
+  - `smallvec::SmallVec<[T; N]>` — inline for ≤N items, spills to heap beyond. Good for "usually 1-8 items" cases like parsed tag lists, lookup keys, small event batches.
+  - `arrayvec::ArrayVec<T, CAP>` — fixed capacity, never heap-allocates. Returns an error when full. Good for bounded message buffers or per-request scratch space.
+  - String interning for repeatedly-seen strings (enum-like values parsed from config, tenant IDs, route keys): `dashmap::DashMap<String, &'static str>` with `Box::leak` on miss gives `&'static str` comparisons without per-call allocations.
+  
+  These are optimizations — profile first. `Vec`/`String` on a cold path isn't the bottleneck.
 
 ## Async with Tokio
 
@@ -96,6 +123,7 @@ See [cli-tools.md](./references/cli-tools.md) for config layering, logging setup
 - Validate input at the boundary: `axum::extract::Json<T>` where `T: Deserialize + Validate` (use `validator` crate). Internal services trust input was validated.
 - Share state via `State<Arc<AppState>>` — not globals, not `lazy_static`.
 - Middleware via `tower::ServiceBuilder`: tracing → timeout → auth → CORS → handler. Order matters.
+- **Resilience layer stack** (outbound HTTP clients and shared services): `ServiceBuilder::new().layer(TimeoutLayer).layer(RateLimitLayer).layer(ConcurrencyLimitLayer).layer(LoadShedLayer).layer(RetryLayer).service(client)`. Name each layer explicitly — `LoadShedLayer` sheds excess load, `ConcurrencyLimitLayer` caps in-flight requests, `RateLimitLayer` bounds request rate, `RetryLayer` retries classified transient errors. Combining `LoadShedLayer` + `ConcurrencyLimitLayer` produces proper backpressure instead of unbounded queueing.
 
 See [axum-service.md](./references/axum-service.md) for project layout, extractors, error types, graceful shutdown, and OpenAPI generation.
 
@@ -122,8 +150,9 @@ See [axum-service.md](./references/axum-service.md) for project layout, extracto
 - `assert_cmd` + `predicates` for CLI integration tests (invokes the binary, asserts on stdout/stderr/exit code).
 - **Assert on error variants with `matches!`**: `assert!(matches!(result.unwrap_err(), MyError::Validation(_)))`. Cleaner than `match` arms when the test only cares whether the error is the right kind, and doesn't force updates when unrelated variants are added.
 - Coverage: `cargo llvm-cov --workspace --html`. Target 70%+ on application code, higher on library crates.
+- **Fuzzing for parsers**: `cargo fuzz` + `libfuzzer-sys` on any code that parses untrusted input (file formats, protocols, query languages). A short nightly fuzz run surfaces the panics and UB that unit tests miss.
 
-For generic test discipline (anti-patterns, mock rules, rationalization resistance), see the `writing-tests` skill.
+For generic test discipline (anti-patterns, mock rules, rationalization resistance), see the `ia-writing-tests` skill.
 
 ## Unsafe Discipline
 
@@ -135,20 +164,15 @@ For generic test discipline (anti-patterns, mock rules, rationalization resistan
 
 ## Production Resilience
 
-- **Fail-fast config**: parse and validate all config at startup with `serde` + a `Config::load() -> Result<Self>` that returns errors for missing/invalid values. Crash before binding the listen port, not on the first request.
-- **Health endpoints**: `/health` (shallow liveness, returns 200 if the process responds) and `/ready` (deep readiness, verifies DB, cache, and downstream services). Load balancers route on `/ready`; orchestrators restart on `/health`.
-- **Graceful shutdown**: install a `tokio::signal` handler, trigger a `CancellationToken`, drain in-flight requests with a timeout, then exit. Axum: `.with_graceful_shutdown(shutdown_signal)`.
-- **Retries**: use `backon` or `tokio-retry` with exponential backoff + jitter. Retry only transient errors (connection reset, 429, 502/503/504). Never retry 4xx.
-- **Timeouts on every network call** — no defaults. `tokio::time::timeout(dur, fut)` or `reqwest::Client::builder().timeout(dur)`.
-- **Connection pools**: `sqlx::PgPool`, `reqwest::Client` — build once, clone (cheap, `Arc` inside), share via `State`.
+When productionizing a service (config validation, `/health` + `/ready` endpoints, graceful shutdown, retries/timeouts/jitter, connection pools, diagnostic secret redaction), load [production-resilience.md](./references/production-resilience.md).
 
 ## Observability
 
-- **Logging**: `tracing` + `tracing-subscriber` with `json()` formatter in production, `fmt().pretty()` in dev. Never `println!` or `log::` in new code.
-- `#[tracing::instrument(skip(large_arg), fields(user_id = %user.id))]` on service methods — automatic span creation, structured fields.
-- **Correlation IDs**: extract/generate at ingress middleware, attach to the root span, propagate via `traceparent` header to downstream calls.
-- **Metrics**: `metrics` crate with `metrics-exporter-prometheus`. Counter for traffic/errors, Histogram for latency, Gauge for saturation. Label cardinality bounded — no user IDs.
-- **Distributed tracing**: `tracing-opentelemetry` exports spans to Jaeger/Tempo/etc.
+For logging (`tracing` + `tracing-subscriber` with init recipe), `#[instrument]` spans, correlation IDs, metrics, and distributed tracing patterns, load [observability.md](./references/observability.md). Never use `println!` or `log::` in new code.
+
+## CI
+
+General CI design lives with the `ia-infrastructure-engineer` agent. For Rust-specific callouts (`rustsec/audit-check`, `cargo-llvm-cov`, `Swatinem/rust-cache`, `taiki-e/install-action`, matrix coverage guidance, doc-test step), load [ci-pipeline.md](./references/ci-pipeline.md).
 
 ## Discipline
 
@@ -170,3 +194,7 @@ For generic test discipline (anti-patterns, mock rules, rationalization resistan
 
 - [cli-tools.md](./references/cli-tools.md) — clap patterns, config layering, tracing setup, progress, shell completions
 - [axum-service.md](./references/axum-service.md) — project layout, extractors, error types, graceful shutdown, testing
+- [build-profiles.md](./references/build-profiles.md) — release/release-dbg/release-min profiles, mold linker, dev compile speedups
+- [ci-pipeline.md](./references/ci-pipeline.md) — Rust-specific CI steps (cargo audit, llvm-cov, rust-cache, matrix strategy, doc tests)
+- [production-resilience.md](./references/production-resilience.md) — fail-fast config, health/ready endpoints, graceful shutdown, retries, timeouts, connection pools
+- [observability.md](./references/observability.md) — tracing init recipe, span instrumentation, correlation IDs, metrics, distributed tracing

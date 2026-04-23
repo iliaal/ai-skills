@@ -2,7 +2,7 @@
 name: compound-docs
 description: >-
   Document solved problems for team reuse. Provides process knowledge for
-  /workflows:compound. Use when documenting a resolved issue, writing up
+  /ia-compound. Use when documenting a resolved issue, writing up
   lessons learned, capturing a post-mortem, adding to the knowledge base,
   or building searchable institutional knowledge after debugging.
 disable-model-invocation: true
@@ -73,4 +73,4 @@ For detailed response handling, see [documentation-process.md](./references/docu
 
 ## Integration
 
-- `/compound-refresh` command -- reviews `docs/solutions/` for stale learnings
+- `/ia-compound-refresh` command -- reviews `docs/solutions/` for stale learnings

@@ -166,7 +166,7 @@ def call_api(url: str) -> dict: ...
 ## Migrations
 
 - Separate schema and data migrations -- data backfills in their own migration file
-- Renames/removals use expand-contract: add new column → backfill → switch reads → drop old (see `postgresql` skill for the full pattern)
+- Renames/removals use expand-contract: add new column → backfill → switch reads → drop old (see `ia-postgresql` skill for the full pattern)
 - Never edit a migration that has already run in a shared environment
 - Alembic: use `--autogenerate` as a starting point, always review generated SQL before committing
 - Test migrations against production-sized data -- a migration that takes 2ms on dev can lock a table for minutes in production

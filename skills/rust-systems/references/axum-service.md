@@ -22,7 +22,7 @@ tests/
   api.rs           # Integration tests hitting the router directly
 ```
 
-Rules mirror the layered architecture from `nodejs-backend`:
+Rules mirror the layered architecture from `ia-nodejs-backend`:
 - Routes parse + call services + format response. No business logic.
 - Services never import from `axum` or `http`. No HTTP status codes leak in.
 - Repos never construct `AppError` variants that map to HTTP — they return typed storage errors that services convert.

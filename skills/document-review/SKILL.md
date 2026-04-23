@@ -56,7 +56,7 @@ Score the document against these criteria:
 | **Specificity** | Concrete enough for next step (brainstorm → can plan, plan → can implement) |
 | **YAGNI** | No hypothetical features, simplest approach chosen |
 
-If invoked within a workflow (after `/workflows:brainstorm` or `/workflows:plan`), also check:
+If invoked within a workflow (after `/ia-brainstorm` or `/ia-plan`), also check:
 - **User intent fidelity** -- Document reflects what was discussed, assumptions validated
 
 ## Step 5: Identify the Critical Improvement
@@ -88,11 +88,25 @@ Simplification is purposeful removal of unnecessary complexity, not shortening f
 
 ## Step 7: Reader Test (Optional)
 
-For standalone documents that must be self-contained (onboarding guides, ADRs, external-facing docs), optionally dispatch a zero-context sub-agent with only the document and 5 reader questions. Generate the questions from the document's stated goals -- one per major section or decision. The sub-agent has no conversation history -- it sees only what a future reader would see.
+For standalone documents that must be self-contained (onboarding guides, ADRs, external-facing docs), dispatch a zero-context sub-agent to simulate a first-time reader. The sub-agent has no conversation history — it sees only what a future reader would see.
 
-If the sub-agent can answer the questions correctly, the document is self-contained. If it can't, the document has gaps that need filling. This is the "fresh eyes" test automated.
+**How to run the test:**
 
-Skip for context-dependent docs (brainstorm notes, plan files, internal working docs) where the reader will have prior context.
+1. **Predict 5-10 reader questions** from the document's stated goals — one per major section or decision. Mix three kinds:
+   - Concrete retrieval: "What command sets up the dev environment?"
+   - Decision rationale: "Why did we pick X over Y?"
+   - Ambiguity probe: "Could a reader interpret <specific phrase> in more than one way?"
+2. **Dispatch a fresh sub-agent** with the document attached and the questions. No prior context, no session history.
+3. **Compare the sub-agent's answers** against author intent. Also ask the sub-agent directly: "What feels ambiguous? What prior knowledge does this assume? Are there internal contradictions?"
+
+**Interpret results:**
+
+- Correct, confident answers → document is self-contained for that question.
+- Wrong answer with high confidence → document actively misleads. Highest-priority fix.
+- Hedged or "insufficient information" → the document has a gap the author didn't notice. Fill it.
+- Sub-agent flags ambiguity the author didn't intend → reword for precision.
+
+Skip for context-dependent docs (brainstorm notes, plan files, internal working docs) where the reader will always have prior context. The sub-agent test only adds value when the real reader has no other channel.
 
 ## Step 8: Offer Next Action
 

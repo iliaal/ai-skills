@@ -1,6 +1,6 @@
 # Security Test Coverage Checklist
 
-Audit deliverable template for the `security-sentinel` agent. Every security audit must produce this checklist as an explicit artifact, not a narrative summary. Each item is either verified with evidence (file:line + passing test) or explicitly flagged as uncovered.
+Audit deliverable template for the `ia-security-sentinel` agent. Every security audit must produce this checklist as an explicit artifact, not a narrative summary. Each item is either verified with evidence (file:line + passing test) or explicitly flagged as uncovered.
 
 Each finding ties to severity (CVSS 3.1 base score + vector), proof of exploitability (curl command, test snippet, or PoC), and copy-paste-ready remediation code.
 

@@ -71,11 +71,23 @@ For each skill invoked during the session:
 
 Present proposed changes as diffs. Ask: *"Apply these? (all / pick / skip)"*
 
-### 6. Pattern Detection
+### 6. Capture Markers
+
+**The `remember:` prefix** is the highest-confidence capture signal. When the user writes a message beginning with `remember:`, treat everything after the colon as a memory candidate — no interpretation required. Save directly to the appropriate memory file with a one-line summary and the user's exact phrasing. Example: `remember: we never use Pest, always PHPUnit` → save to `feedback_phpunit_over_pest.md`.
+
+**Correction patterns to watch for** (lower-confidence, batch these for review at `/ia-reflect` time):
+- "no, use X" / "actually, X" / "don't use Y, use X"
+- "stop doing X" / "never X"
+- "that's wrong — the right way is..."
+- repeated clarifications of the same thing within a session
+
+**Optional capture hook**: a `UserPromptSubmit` hook can pattern-match the markers above into `~/.claude/learnings-queue.json` as the user types, so `/ia-reflect` processes the queue deterministically instead of re-scanning the full transcript. Not shipped with this skill; document the convention and leave implementation to users who need it.
+
+### 7. Pattern Detection
 
 If 2+ similar tasks appear that no existing skill covers, suggest a new skill (1-2 sentence description). Create only after confirmation.
 
-**Proactive trigger:** When the user corrects you, clarifies the same thing twice, or shows frustration, append: "Tip: Type `/reflect` when you're ready -- I'll review what we can improve."
+**Proactive trigger:** When the user corrects you, clarifies the same thing twice, or shows frustration, append: "Tip: Type `/ia-reflect` when you're ready -- I'll review what we can improve."
 
 ## Self-Check
 

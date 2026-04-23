@@ -23,7 +23,7 @@ description: >-
 
 ## AI Patterns -- Kill on Sight
 
-**Vocabulary**: delve, crucial, pivotal, foster, leverage, tapestry, testament, underscore, vibrant, landscape (abstract), interplay, multifaceted, enhance, enduring, garner, showcase, Additionally, seamless, robust, cutting-edge, groundbreaking, nestled, renowned
+**Vocabulary**: delve, crucial, pivotal, foster, leverage, tapestry, testament, underscore, vibrant, landscape (abstract), shape (abstract, as in "previous shape" / "the shape of the problem"), interplay, multifaceted, enhance, enduring, garner, showcase, Additionally, seamless, robust, cutting-edge, groundbreaking, nestled, renowned
 
 **Structural tells**:
 - Rule of three: forced triads ("streamline, optimize, and enhance")
@@ -130,6 +130,9 @@ Tag vocabulary (extend the earlier prose rules with these named IDs):
 | `[INLINE-BOLD]` / `[INLINE-LIST]` / `[TITLE-CASE]` | Mechanical formatting tells |
 | `[VAGUE-DECLARATIVE]` | "The implications are significant" without naming the implication |
 | `[PASSIVE]` / `[ADVERB]` / `[BANNED-PHRASE]` | Standard corrections |
+| `[CURLY-QUOTES]` | Curly single or double quotes (`’ ‘ “ ”`) in running prose. AI autocorrect artifact — replace with straight ASCII quotes. |
+| `[EMOJI]` | Emoji in running text or headings. Functional UI emoji in product copy is fine; editorial/promotional emoji is an AI tell. |
+| `[FALSE-RANGE]` | "From X to Y" where X and Y aren't on a coherent scale ("from code review to cultural shift"). Restructure to state both items without implying a continuum. |
 
 **Severity suffixes** when tagging: `+H` for high severity (strong tell or compound patterns), `+S` for structural (affects document structure, not just wording).
 

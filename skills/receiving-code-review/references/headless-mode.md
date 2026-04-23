@@ -10,7 +10,7 @@ When invoked programmatically (by another skill or command with `mode:headless`)
 
 | Classification | Criteria | Action |
 |---------------|----------|--------|
-| **AUTO-FIX** | Clearly correct, matches project conventions, mechanical change (<10 lines), passes source-specific checks | Classify for `pr-comment-resolver` dispatch |
+| **AUTO-FIX** | Clearly correct, matches project conventions, mechanical change (<10 lines), passes source-specific checks | Classify for `ia-pr-comment-resolver` dispatch |
 | **AUTO-DECLINE** | Technically incorrect (provable with code evidence), contradicts project conventions, YAGNI (zero callers via grep) | Draft push-back response with evidence |
 | **ESCALATE** | Ambiguous intent, architectural decision, reasonable engineers could disagree, changes user-visible behavior | Surface to user with context summary |
 
