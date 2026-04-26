@@ -17,7 +17,7 @@ AI coding agents skip planning, claim "done" without verifying, patch symptoms o
 
 The long-form argument is at [AI Agents Don't Lack Capability. They Lack Process.](https://ilia.ws/blog/ai-agents-dont-lack-capability-they-lack-process). These skills are the portable enforcement layer.
 
-## Install
+## 🚀 Install
 
 ### On Claude Code? Use the full plugin instead.
 
@@ -59,7 +59,7 @@ npx skills add iliaal/ai-skills -a claude-code
 
 Works with Claude Code, Cursor, Codex, Gemini CLI, GitHub Copilot CLI, OpenCode, OpenClaw, Kilo Code, and [35+ other agents](https://agentskills.io).
 
-## Skills
+## ✨ Skills
 
 ### Architecture & design
 
@@ -149,7 +149,7 @@ In practice:
 - One good default per decision. A single best practice beats a menu of options.
 - Keyword-rich descriptions under 80 tokens. The description is the only part loaded at startup, so it's packed with the exact phrases developers type.
 
-## Tips
+## 💡 Tips
 
 Claude Code sometimes skips skills even when they match your request. If that happens, drop this into your `CLAUDE.md`:
 
@@ -172,4 +172,4 @@ MIT
 
 ---
 
-[Follow @iliaa on X](https://x.com/iliaa) • [Blog](https://ilia.ws) • If this improved your AI workflow, star it!
+[Follow @iliaa on X](https://x.com/iliaa) • [Blog](https://ilia.ws) • If this improved your AI workflow, ⭐ star it!
