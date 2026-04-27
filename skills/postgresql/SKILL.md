@@ -1,5 +1,6 @@
 ---
 name: postgresql
+class: language
 description: >-
   PostgreSQL schema design, query optimization, indexing, and administration.
   Use when working with PostgreSQL, JSONB, partitioning, RLS, CTEs, window
@@ -84,7 +85,7 @@ Run in a loop until zero rows affected.
 - Covering: `INCLUDE (col)` -- avoids heap lookup
 - Expression: `ON (lower(email))` -- for function-based WHERE
 - `fillfactor = 70-90` on write-heavy tables -- reserves space for HOT updates, reducing index bloat
-- Drop unused indexes: `SELECT * FROM pg_stat_user_indexes WHERE idx_scan = 0`
+- Drop unused indexes (only after one full business cycle since last restart -- check `pg_stat_database.stats_reset` first, otherwise you may drop a primary key on a freshly restarted DB or read replica): `SELECT * FROM pg_stat_user_indexes WHERE idx_scan = 0`
 
 **Detect unindexed foreign keys:**
 ```sql

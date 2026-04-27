@@ -1,5 +1,6 @@
 ---
 name: verification-before-completion
+class: discipline
 description: >-
   Enforces fresh verification evidence before any completion claim. Use when
   about to claim "tests pass", "bug fixed", "done", "ready to merge", or
@@ -200,7 +201,7 @@ The `Things I didn't touch` section is not optional — if nothing was noticed, 
 ## Integration
 
 This skill is referenced by:
-- `workflows:work` -- before marking tasks complete, before shipping, and before merge/PR creation (Phase 4)
+- `/ia-work` -- before marking tasks complete, before shipping, and before merge/PR creation (Phase 4)
 - `ia-receiving-code-review` -- verify each fix before marking resolved
 - `ia-debugging` -- before claiming a bug is fixed
 - `ia-writing-tests` -- tests as primary verification evidence

@@ -1,5 +1,6 @@
 ---
 name: terraform
+class: language
 description: >-
   Terraform and OpenTofu configuration, modules, testing, state management, and
   HCL review. Use when working with Terraform, OpenTofu, HCL, tfvars, tftest,

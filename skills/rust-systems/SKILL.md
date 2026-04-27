@@ -1,5 +1,6 @@
 ---
 name: rust-systems
+class: language
 description: >-
   Rust patterns for CLI tools, backend services, and general application code.
   Use when working with Rust, Cargo workspaces, axum/tokio services, clap CLIs,
@@ -18,7 +19,7 @@ Covers modern application-layer Rust (edition 2024): CLIs, web services, librari
 | `cargo` | Build, dep management, script runner |
 | `clippy` | Lint (`cargo clippy --workspace --all-targets -- -D warnings`) |
 | `rustfmt` | Formatter (`cargo fmt --all`) |
-| `cargo-nextest` | Test runner, 2-3x faster than `cargo test`, better isolation |
+| `cargo-nextest` | Test runner, noticeably faster than `cargo test`, better isolation |
 | `cargo-deny` | License + advisory + duplicate-dep checks |
 | `cargo-machete` | Find unused dependencies |
 
