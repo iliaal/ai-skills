@@ -9,7 +9,7 @@
 
 Compact, opinionated skills that change how AI coding agents behave. Behavioral rules that enforce discipline and catch mistakes, triggered by what you're working on. Works with 35+ agents through one install command.
 
-> **Note:** This repo is a read-only mirror of skills from the [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin). Edits happen upstream; this repo exists for distribution via `npx skills add`.
+> **Note:** This repo is a read-only mirror of skills from the [whetstone plugin](https://github.com/iliaal/whetstone). Edits happen upstream; this repo exists for distribution via `npx skills add`.
 
 ## The Problem
 
@@ -21,11 +21,12 @@ The long-form argument is at [AI Agents Don't Lack Capability. They Lack Process
 
 ### On Claude Code? Use the full plugin instead.
 
-The [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin) is the recommended path on Claude Code. It bundles these skills plus 19 specialized agents, 22 workflow commands, an MCP server, and skill-injection hooks for subagents. Skills alone do behavioral discipline; the full plugin orchestrates entire workflows.
+The [whetstone plugin](https://github.com/iliaal/whetstone) is the recommended path on Claude Code. It bundles these skills plus 19 specialized agents, 22 workflow commands, an MCP server, and skill-injection hooks for subagents. Skills alone do behavioral discipline; the full plugin orchestrates entire workflows.
 
 ```bash
-/plugin marketplace add https://github.com/iliaal/compound-engineering-plugin
-/plugin install compound-engineering
+/plugin marketplace add https://github.com/iliaal/whetstone
+/plugin install whetstone@iliaal-marketplace
+/reload-plugins
 ```
 
 ### Any other agent

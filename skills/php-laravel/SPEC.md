@@ -18,7 +18,7 @@ Out of scope:
 ## Trigger Context
 
 - Class: `language`
-- Hook regex: `plugins/compound-engineering/hooks/skill-patterns.sh` -> `SKILL_PATTERNS[ia-php-laravel]`
+- Hook regex: `plugins/whetstone/hooks/skill-patterns.sh` -> `SKILL_PATTERNS[ia-php-laravel]`
 - Common requests (from fixture should_trigger):
   - "add a new Laravel controller for user profiles"
   - "fix the Eloquent query performance"
@@ -35,7 +35,7 @@ Authoritative sources:
 - `SKILL.md` -- runtime instructions and reference routing.
 - `references/*.md` -- bundled supplementary content (6 file(s)).
 - `distillery/tests/fixtures/triggers/ia-php-laravel.jsonl` -- positive and negative trigger phrasings under regression test.
-- `plugins/compound-engineering/hooks/skill-patterns.sh` -- regex pattern that fires this skill.
+- `plugins/whetstone/hooks/skill-patterns.sh` -- regex pattern that fires this skill.
 - `distillery/.eval-data/ia-php-laravel/` -- harvested session examples (when present).
 
 Data that must not be stored in this skill or its references:
@@ -49,7 +49,7 @@ Data that must not be stored in this skill or its references:
 | Dimension | Status | Evidence |
 |---|---|---|
 | Trigger fixtures | complete | distillery/tests/fixtures/triggers/ia-php-laravel.jsonl (>=5 should_trigger, >=5 should_not_trigger) |
-| Hook regex pattern | complete | plugins/compound-engineering/hooks/skill-patterns.sh (`SKILL_PATTERNS[ia-php-laravel]`) |
+| Hook regex pattern | complete | plugins/whetstone/hooks/skill-patterns.sh (`SKILL_PATTERNS[ia-php-laravel]`) |
 | Reference architecture | complete | 6 file(s) under references/ |
 | Real-usage signal | <!-- populated by harvest-sessions when sessions exist --> | distillery/.eval-data/ia-php-laravel/ (created by harvest-sessions) |
 

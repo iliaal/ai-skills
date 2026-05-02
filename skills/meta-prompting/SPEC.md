@@ -18,7 +18,7 @@ Out of scope:
 ## Trigger Context
 
 - Class: `meta`
-- Hook regex: `plugins/compound-engineering/hooks/skill-patterns.sh` -> `SKILL_PATTERNS[ia-meta-prompting]`
+- Hook regex: `plugins/whetstone/hooks/skill-patterns.sh` -> `SKILL_PATTERNS[ia-meta-prompting]`
 - Common requests (from fixture should_trigger):
   - "argue against this architectural decision before we commit"
   - "what could break if we deploy this change to production"
@@ -35,7 +35,7 @@ Authoritative sources:
 - `SKILL.md` -- runtime instructions and reference routing.
 - `references/*.md` -- bundled supplementary content (0 file(s)).
 - `distillery/tests/fixtures/triggers/ia-meta-prompting.jsonl` -- positive and negative trigger phrasings under regression test.
-- `plugins/compound-engineering/hooks/skill-patterns.sh` -- regex pattern that fires this skill.
+- `plugins/whetstone/hooks/skill-patterns.sh` -- regex pattern that fires this skill.
 - `distillery/.eval-data/ia-meta-prompting/` -- harvested session examples (when present).
 
 Data that must not be stored in this skill or its references:
@@ -49,7 +49,7 @@ Data that must not be stored in this skill or its references:
 | Dimension | Status | Evidence |
 |---|---|---|
 | Trigger fixtures | complete | distillery/tests/fixtures/triggers/ia-meta-prompting.jsonl (>=5 should_trigger, >=5 should_not_trigger) |
-| Hook regex pattern | complete | plugins/compound-engineering/hooks/skill-patterns.sh (`SKILL_PATTERNS[ia-meta-prompting]`) |
+| Hook regex pattern | complete | plugins/whetstone/hooks/skill-patterns.sh (`SKILL_PATTERNS[ia-meta-prompting]`) |
 | Reference architecture | n/a | no references; SKILL.md is self-contained |
 | Real-usage signal | <!-- populated by harvest-sessions when sessions exist --> | distillery/.eval-data/ia-meta-prompting/ (created by harvest-sessions) |
 

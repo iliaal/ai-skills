@@ -93,6 +93,50 @@ After all agents return, apply these rules in order. Each consolidated finding c
 10. **Sort by severity** (Critical > Important > Medium > Minor), then by confidence within each level.
 11. **Cap total findings** at 20 across all agents. If more exist, note the overflow count.
 
+## Skeptic Pass
+
+After the merge algorithm produces the consolidated list, run **one** Skeptic dispatch over the findings whose confidence is ≥0.70 (post-boost). The Skeptic's job is the opposite of the specialists': take each surviving finding and try to *disprove* it. Specialists are rewarded for catching bugs; the Skeptic is rewarded for catching false positives.
+
+**When to run:** any deep review with at least one finding at ≥0.70. Skip if all findings are below that bar (the confidence rubric already suppresses them).
+
+**Single dispatch, not per-finding.** One agent call carrying the full diff and the consolidated finding list. Per-finding dispatch is wasteful — most disproof attempts fail in the same way (reading the same dispatch guard, the same null check upstream).
+
+### Skeptic Prompt Template
+
+```
+You are a Skeptic. The findings below survived a parallel multi-agent code review. Your job is to find ONE concrete reason each finding is wrong, before it lands in the final report.
+
+For each finding, attempt one of:
+- REACHABILITY: trace upstream callers. Does any dispatch guard, null check, or branch condition prevent the buggy path from firing under attacker-reachable input? If yes, name the guard with file:line.
+- FRAMEWORK BEHAVIOR: does the framework/library actually behave as the finding assumes at the project's pinned version? Cite the docs or the framework source if the finding is wrong.
+- TEST EVIDENCE: does the existing test suite already exercise the alleged bug? If a passing test covers the exact path the finding worries about, the finding is likely speculative.
+- DUPLICATE: does the finding describe the same defect as a higher-severity finding already in the list? Mark for merge.
+
+Per finding, return one of:
+- DISPROVED — concrete counter-evidence (file:line of the upstream guard, doc URL, passing test name). Drop or demote to advisory.
+- WEAKENED — partial counter-evidence. Reduce severity by one tier and keep.
+- HELD — no counter-evidence found. Keep as-is.
+
+DO NOT invent counter-evidence. If you cannot find a real upstream guard, doc citation, or covering test, return HELD. Inventing a phantom guard is worse than letting a false positive through — the author then ignores a real bug because "the Skeptic disproved it."
+
+DIFF:
+{full diff content}
+
+CONSOLIDATED FINDINGS (only those with confidence ≥0.70):
+{findings list with CR-IDs}
+```
+
+### Applying Skeptic Output
+
+- **DISPROVED with concrete citation** → drop the finding. Note in output header: `Skeptic dropped N finding(s)`.
+- **DISPROVED without citation, or vague handwave** → ignore the disproof. The Skeptic must produce evidence, not opinion.
+- **WEAKENED** → demote one severity tier. Tag the finding `[skeptic-weakened: <reason>]` so the author sees the partial counter.
+- **HELD** → keep. Tag `[skeptic-held]` only on findings the Skeptic explicitly examined; this is positive signal that the finding survived adversarial review.
+
+### Why this differs from the red-team pass
+
+Red-team looks for what specialists *missed* (additive). Skeptic challenges what specialists *found* (subtractive). Both phases run in deep review when triggered: red-team after parallel specialists, Skeptic after merge. They produce opposite-direction edits to the finding list.
+
 ## Output Format
 
 Same as the standard review output format, with an additional header:
@@ -101,6 +145,7 @@ Same as the standard review output format, with an additional header:
 ## Review: [brief title] (deep)
 Agents: correctness, security, testing, maintainability, performance, reliability [+ conditional: api-contract, data-migration, cloud-infra] [+ red-team if triggered]
 Cross-lens agreements: N findings tagged MULTI-SPECIALIST CONFIRMED (K at 3+, M at 2)
+Skeptic: examined K findings, dropped D, weakened W, held H (when Skeptic pass ran)
 
 ### Critical
 ...

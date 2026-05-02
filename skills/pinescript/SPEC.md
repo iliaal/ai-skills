@@ -18,7 +18,7 @@ Out of scope:
 ## Trigger Context
 
 - Class: `language`
-- Hook regex: `plugins/compound-engineering/hooks/skill-patterns.sh` -> `SKILL_PATTERNS[ia-pinescript]`
+- Hook regex: `plugins/whetstone/hooks/skill-patterns.sh` -> `SKILL_PATTERNS[ia-pinescript]`
 - Common requests (from fixture should_trigger):
   - "write a pine script indicator for RSI divergence"
   - "fix the TradingView strategy backtest results"
@@ -35,7 +35,7 @@ Authoritative sources:
 - `SKILL.md` -- runtime instructions and reference routing.
 - `references/*.md` -- bundled supplementary content (0 file(s)).
 - `distillery/tests/fixtures/triggers/ia-pinescript.jsonl` -- positive and negative trigger phrasings under regression test.
-- `plugins/compound-engineering/hooks/skill-patterns.sh` -- regex pattern that fires this skill.
+- `plugins/whetstone/hooks/skill-patterns.sh` -- regex pattern that fires this skill.
 - `distillery/.eval-data/ia-pinescript/` -- harvested session examples (when present).
 
 Data that must not be stored in this skill or its references:
@@ -49,7 +49,7 @@ Data that must not be stored in this skill or its references:
 | Dimension | Status | Evidence |
 |---|---|---|
 | Trigger fixtures | complete | distillery/tests/fixtures/triggers/ia-pinescript.jsonl (>=5 should_trigger, >=5 should_not_trigger) |
-| Hook regex pattern | complete | plugins/compound-engineering/hooks/skill-patterns.sh (`SKILL_PATTERNS[ia-pinescript]`) |
+| Hook regex pattern | complete | plugins/whetstone/hooks/skill-patterns.sh (`SKILL_PATTERNS[ia-pinescript]`) |
 | Reference architecture | n/a | no references; SKILL.md is self-contained |
 | Real-usage signal | <!-- populated by harvest-sessions when sessions exist --> | distillery/.eval-data/ia-pinescript/ (created by harvest-sessions) |
 

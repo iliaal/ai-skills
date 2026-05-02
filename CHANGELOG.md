@@ -3,7 +3,7 @@
 All notable changes to ai-skills will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Versions track the upstream [compound-engineering plugin](https://github.com/iliaal/compound-engineering-plugin).
+Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
 ## [2.56.1] - 2026-04-18
 

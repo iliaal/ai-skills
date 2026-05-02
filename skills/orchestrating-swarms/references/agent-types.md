@@ -81,40 +81,40 @@ Task({
 
 ## Plugin Agent Types
 
-From the `compound-engineering` plugin (examples):
+From the `whetstone` plugin (examples):
 
 ### Review Agents
 ```javascript
 // Security review
 Task({
-  subagent_type: "compound-engineering:review:security-sentinel",
+  subagent_type: "whetstone:review:security-sentinel",
   description: "Security audit",
   prompt: "Audit this PR for security vulnerabilities"
 })
 
 // Performance review
 Task({
-  subagent_type: "compound-engineering:review:performance-oracle",
+  subagent_type: "whetstone:review:performance-oracle",
   description: "Performance check",
   prompt: "Analyze this code for performance bottlenecks"
 })
 
 // Architecture review
 Task({
-  subagent_type: "compound-engineering:review:architecture-strategist",
+  subagent_type: "whetstone:review:architecture-strategist",
   description: "Architecture review",
   prompt: "Review the system architecture of the authentication module"
 })
 
 // Code simplicity
 Task({
-  subagent_type: "compound-engineering:review:code-simplicity-reviewer",
+  subagent_type: "whetstone:review:code-simplicity-reviewer",
   description: "Simplicity check",
   prompt: "Check if this implementation can be simplified"
 })
 ```
 
-**All review agents from compound-engineering:**
+**All review agents from whetstone:**
 - `ia-architecture-strategist` - Architectural compliance
 - `ia-code-simplicity-reviewer` - YAGNI and minimalism
 - `ia-database-guardian` - Database safety and migration validation
@@ -128,21 +128,21 @@ Task({
 ```javascript
 // Best practices research
 Task({
-  subagent_type: "compound-engineering:research:best-practices-researcher",
+  subagent_type: "whetstone:research:best-practices-researcher",
   description: "Research auth best practices",
   prompt: "Research current best practices for JWT authentication 2024-2026"
 })
 
 // Framework documentation (use best-practices-researcher -- covers docs + best practices)
 Task({
-  subagent_type: "compound-engineering:research:best-practices-researcher",
+  subagent_type: "whetstone:research:best-practices-researcher",
   description: "Research Active Storage",
   prompt: "Gather comprehensive documentation about Active Storage file uploads"
 })
 
 // Git history analysis
 Task({
-  subagent_type: "compound-engineering:research:git-history-analyzer",
+  subagent_type: "whetstone:research:git-history-analyzer",
   description: "Analyze auth history",
   prompt: "Analyze the git history of the authentication module to understand its evolution"
 })
@@ -157,7 +157,7 @@ Task({
 ### Design Agents
 ```javascript
 Task({
-  subagent_type: "compound-engineering:design:figma-design-sync",
+  subagent_type: "whetstone:design:figma-design-sync",
   description: "Sync with Figma",
   prompt: "Compare implementation with Figma design at [URL]"
 })
@@ -166,7 +166,7 @@ Task({
 ### Workflow Agents
 ```javascript
 Task({
-  subagent_type: "compound-engineering:workflow:bug-reproduction-validator",
+  subagent_type: "whetstone:workflow:bug-reproduction-validator",
   description: "Validate bug",
   prompt: "Reproduce and validate this reported bug: [description]"
 })
