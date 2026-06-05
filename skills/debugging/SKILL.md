@@ -78,6 +78,12 @@ Run once to gather evidence showing WHERE it breaks, then investigate that speci
 
 **6. Fix and verify** -- create a failing test FIRST, then fix. Run the test. Confirm the original reproduction case passes. No completion claims without fresh verification evidence (see `ia-verification-before-completion`).
 
+**Reproduce-passes is not fixed.** Stopping the exact reproduction case is easy; the bad state is often still reachable from a nearby variant when the fix landed at the crash site, not the root cause. Before declaring done, run the **bypass self-check**: name one input variation that reaches the same bad state without tripping your change. If you can, the fix is at the wrong layer -- return to root cause. For security-relevant bugs, escalate to an **adversarial re-attack**: a fresh-context agent, blind to your fix reasoning, attacks the patched code to find a variant that still triggers it.
+
+**Suppression is not a fix.** The bypass self-check assumes the fix attacks the bug -- confirm it actually does. A fix that swallows the error (`try/except: pass`, a blanket catch), disables the failing assertion, or special-cases the reproduction input makes the signal disappear while the defect lives on. A global swallow even *passes* the bypass check, because nothing reaches the bad state anymore. The fix must change behavior at the root cause, not hide the symptom.
+
+**Trim to the minimal diff.** After the fix verifies, run a fresh-context pass asked only to "simplify to the smallest change that fixes the root cause." The fixing session is anchored to its own reasoning and over-reaches; a blind pass reliably finds the trim points without reintroducing the bug.
+
 **On a failed fix:** return to Step 5 and *explicitly invalidate the current hypothesis* before forming a new one. State what evidence ruled out the prior hypothesis, then form a new hypothesis with its own grounding observation. Do not retry variants of the same theory ("maybe it was the other branch", "let me also catch this case") -- that is rationalization, not iteration. The Three-Fix Threshold below counts cycles, not retries within a single broken theory.
 
 ## Debug Report
@@ -121,18 +127,9 @@ For race conditions, deadlocks, resource exhaustion, and timing-dependent bugs, 
 
 After fixing, validate at every layer -- not just where the bug appeared. See [defense-in-depth.md](./references/defense-in-depth.md) for the four-layer pattern (entry, business logic, environment, instrumentation) with examples.
 
-## Bug Triage
+## Common Patterns and Bug Triage
 
-When multiple bugs exist, prioritize by:
-- **Severity** (data loss > crash > wrong output > cosmetic) separately from **Priority** (blocking release > customer-facing > internal)
-- Reproducibility: always > sometimes > once. "Sometimes" bugs need instrumentation before fixing.
-- Quick wins: if a fix is < 5 minutes and unblocks others, do it first
-
-## Common Patterns
-
-- **Async ordering** -- missing `await`, unhandled promise rejection, callback firing before setup completes. The temporal gap between setup and callback is where bugs hide.
-- **Stale state** -- cached values, stale closures, outdated config, old build artifacts. When behavior contradicts the code you're reading, verify you're running what you think you're running.
-- **Recurring fix site** -- if `git log` shows 3+ prior fixes in the same file, the file needs redesign, not another patch. Escalate as architectural smell.
+For the recurring-pattern catalog (async ordering, stale state, stale build artifacts, recurring fix site) and the severity-vs-priority triage heuristic when multiple bugs compete, see [specialized-patterns.md](./references/specialized-patterns.md).
 
 ## Root Cause Tracing
 
@@ -161,6 +158,7 @@ See [specialized-patterns.md](./references/specialized-patterns.md) for anti-pat
 
 - Root cause identified with `file:line` evidence (not just "it failed here")
 - Regression test exists and fails without the fix, passes with it
+- Bypass self-check run: no variant input reaches the same bad state without tripping the fix (for security-relevant fixes, adversarial re-attack found no bypass)
 - Debug Report emitted with all seven fields (SYMPTOM, ROOT CAUSE, FIX, EVIDENCE, REGRESSION, RELATED, STATUS)
 - No diagnostic instrumentation left in code (`git diff` shows no leftover logging)
 
