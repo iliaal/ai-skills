@@ -5,6 +5,16 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.2.0] - 2026-07-07
+
+### Changed
+- `ia-md-docs` no longer carries a bare `mv CLAUDE.md AGENTS.md` migration that could fire as a side effect of an unrelated task. The migration now runs only inside the init or update workflow and only after you confirm it.
+- `ia-writing` carried two copies of its audit workflow that had drifted apart; the reference file is now the single source, with the newer tag vocabulary.
+- `ia-planning`, `ia-meta-prompting`, and `ia-brainstorming` gained patterns for surfacing unknowns before committing to an approach.
+### Fixed
+- `ia-react-frontend` linked to two sibling skills by their pre-4.0 names, so both links pointed at files that no longer exist.
+- `ia-terraform` gave three different format commands for the same check, one of which rewrote files where the verify step expected none. Version-pinned claims that rot (Docker base-image tags, a CVSS spec revision, a WCAG draft number, a model name) were reframed as patterns.
+
 ## [2.56.1] - 2026-04-18
 
 ### Added
