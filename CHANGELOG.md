@@ -5,6 +5,16 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.2.1] - 2026-07-11
+
+### Changed
+- `ia-brainstorming` gained a blindspot pass for territory the user can't evaluate. When someone signals they can't weigh a domain ("I know nothing about auth, you decide"), the interview stops extracting guesses and maps the decision surface instead — three to seven decisions and hazards, each with options and a recommended default — so the user chooses against real alternatives rather than the agent deciding silently.
+- `ia-code-review` gained three checks. A referee re-read: before dropping a Critical finding because the Skeptic disproved it, re-read the cited guard at its line (or confirm the cited doc), because a phantom citation is how a real Critical gets silently dropped. A silent-pass lens: a change that is itself a verification mechanism — a CI gate, a merge-block check, a masking mock — gets the "can this go green while the thing it guards is red?" question even at five lines, where the size triggers would otherwise wave it through. And a sentinel-overload check: reusing an existing null or empty value for a new state, where "it type-checks" hides that consumers can no longer tell two states apart.
+- `ia-compound-docs` now grounds behavioral claims in source before writing them to permanent docs: read the defining line and cite it, cite PR numbers rather than bare SHAs that a rebase rewrites, and attribute what can't be verified instead of asserting it as fact.
+- `ia-reflect` checks existing memory for duplicates and contradictions before writing a new entry, including through the high-confidence `remember:` path, and excludes harness-level noise from its operational-learnings scan.
+- `ia-react-frontend` gained two server-component rules: never hold request-scoped data in module-level state, since server renders share one process and it leaks across requests, and pass only the fields a client component actually uses across the boundary, since every prop is serialized into the payload.
+- `ia-writing` gained one more AI tell: the permission-granting closer "And that's okay."
+
 ## [4.2.0] - 2026-07-07
 
 ### Changed

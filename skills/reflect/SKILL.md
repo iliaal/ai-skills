@@ -48,7 +48,9 @@ If the session included PR or MR review activity in either direction, run this s
 
 ### 3. Operational Learnings
 
-Before listing improvements, scan the session for operational insights worth preserving. Apply the 5-minute filter: would knowing this save 5+ minutes in a future session? If yes, include it. Examples: a project-specific quirk, a command that failed unexpectedly, an approach that worked better than expected.
+Before listing improvements, scan the session for operational insights worth preserving. Apply the 5-minute filter: would knowing this save 5+ minutes in a future session? If yes, include it. Examples: a project-specific quirk, a project command that failed for a project-specific reason, an approach that worked better than expected.
+
+Exclude harness-level noise — "File has not been read yet", token-limit truncations, bash-quoting slips, and other tooling artifacts. Those aren't project learnings; capture the *project's* behavior, not the agent's mechanics.
 
 ### 4. Improvements
 
@@ -57,6 +59,8 @@ Numbered list of **concrete improvements**, ranked by impact. Each item: one sen
 Ask: *"Which of these should I remember for future chats?"*
 
 Save approved items to memory files at `~/.claude/projects/<project-slug>/memory/` (replace `<project-slug>` with the slug matching the current working directory, e.g., `-home-ilia-ai-whetstone`) using the Write tool with proper frontmatter (see MEMORY.md index).
+
+Before writing, grep the existing memory directory for the item's key terms. On a near-duplicate, update that file instead of adding a second. On a direct contradiction with an entry already on file ("use tabs" when "use spaces" is recorded), do not blind-append — surface both and let the user choose merge, replace, or keep-both. Silent duplicate and contradiction accumulation is the main way a curated memory index rots.
 
 ### 5. Skill Audit (if skills were used)
 
@@ -74,7 +78,7 @@ Present proposed changes as diffs. Ask: *"Apply these? (all / pick / skip)"*
 
 ### 6. Capture Markers
 
-**The `remember:` prefix** is the highest-confidence capture signal. When the user writes a message beginning with `remember:`, treat everything after the colon as a memory candidate — no interpretation required. Save directly to the appropriate memory file with a one-line summary and the user's exact phrasing. Example: `remember: we never use Pest, always PHPUnit` → save to `feedback_phpunit_over_pest.md`.
+**The `remember:` prefix** is the highest-confidence capture signal. When the user writes a message beginning with `remember:`, treat everything after the colon as a memory candidate — no interpretation required. Save directly to the appropriate memory file with a one-line summary and the user's exact phrasing. "Directly" waives interpretation, not the step-4 pre-write check: still grep existing memory for duplicates and contradictions before writing (a `remember:` that contradicts a recorded entry gets the same merge/replace/keep-both handling). Example: `remember: we never use Pest, always PHPUnit` → save to `feedback_phpunit_over_pest.md`.
 
 **Correction patterns to watch for** (lower-confidence, batch these for review at `/ia-reflect` time):
 - "no, use X" / "actually, X" / "don't use Y, use X"
