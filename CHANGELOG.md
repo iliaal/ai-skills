@@ -5,6 +5,11 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.3.0] - 2026-07-12
+
+### Changed
+- `ia-orchestrating-swarms` now resolves its primitives against the active harness instead of assuming Claude's `Task`, `Teammate`, and `TaskCreate` tools. It documents the matching Codex calls (`spawn_agent`, `send_message`, `followup_task`, `wait_agent`), and its worktree-isolation, model-selection, and context-carry-forward guidance each branch by harness.
+
 ## [4.2.1] - 2026-07-11
 
 ### Changed
