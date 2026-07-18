@@ -5,6 +5,15 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.3.1] - 2026-07-18
+
+### Changed
+- `ia-nodejs-backend` gained dependency supply-chain guidance beyond a single `npm audit` line: frozen installs, gating package lifecycle scripts before they run, and the reminder that a clean audit says nothing about a freshly malicious or typosquatted package.
+- `ia-brainstorming` carries settled decisions forward instead of re-litigating them. A choice the user made with its trade-off in view stays settled and isn't re-asked at planning or during work, while a cold directive gets one challenge and is then recorded. A new value-sourcing self-review catches any produced value whose source the spec never names.
+- `ia-linux-bash-scripting` gained two injection-safety rules: keep untrusted data out of heredocs and `sh -c` strings, since a quoted heredoc still breaks when a content line matches the delimiter, and allowlist a command by matching the whole command anchored rather than inspecting its arguments, so a shell operator can't smuggle a second command past the check.
+- `ia-simplifying-code` gained two reuse checks: flag code that hand-maintains a guarantee the framework or a downstream layer already enforces, and eliminate duplication by deriving it from a source of truth before consolidating it into a helper.
+- `ia-orchestrating-swarms` records a skipped task in its subject rather than marking it plainly complete, so a task list distinguishes work that finished from work a gate deliberately skipped.
+
 ## [4.3.0] - 2026-07-12
 
 ### Changed
