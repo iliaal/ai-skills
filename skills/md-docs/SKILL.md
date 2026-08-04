@@ -74,6 +74,8 @@ Keep AGENTS.md / CLAUDE.md to durable signal. Do NOT enumerate:
 
 The test: if a fact will be wrong in two months without anyone touching this file, it does not belong here.
 
+What earns the space is the inverse: document what the agent cannot discover by reading the repo -- the unwritten convention, the reason behind a choice, the gotcha no config file confesses. The environment is a source of truth too, so a section restating it is a cache, and a cache earns its load only when the lookup is expensive. Naming the one test command among forty `package.json` scripts is an expensive lookup and belongs here (see Commands below); a raw `ls -R` dump or a paraphrase of `--help` is a cheap one the agent can re-derive on demand. A curated structure note -- what a new top-level directory is *for* -- is not the same thing, and still belongs here.
+
 ## Context File Hierarchy
 
 Structure CLAUDE.md (and AGENTS.md) content by priority so the most critical information loads first when context is compacted:
@@ -107,6 +109,8 @@ Before overwriting: `cp FILE FILE.backup`; never auto-delete backups.
 
 - **Lead with the answer.** First sentence of each section states the conclusion; reasoning follows. No "In this section, we'll..." preamble.
 - **Imperative form** for instructions: "Build the project" not "The project is built" — verify no passive voice in any directive sentence.
+- **One directive per sentence.** A rule that bundles two actions gets half-applied: the reader acts on the first clause and the last, and drops the middle. Move any sequence of 3+ steps into a numbered list rather than burying it in prose.
+- **`must`/`never` for requirements, `should`/`may` for latitude.** A requirement phrased as "should" reads as optional and gets skipped.
 - **Expert-to-expert**: cut explanations of concepts the target reader already knows. For CLAUDE.md/AGENTS.md, assume familiarity with git, package managers, test runners, and the project's main language.
 - **Scannable**: headings every ~20 lines, bullet lists for ≥3 parallel items, fenced code blocks for every command.
 - **Verify every command and path against the codebase.** Run each command before committing; grep for each referenced path. Stale paths and untested commands are the most common doc defect.
@@ -121,6 +125,7 @@ Flag during `Update README` workflows:
 - Jargon before definition (using project-specific terms without introduction)
 - Theory before try (architecture explanation before a working example)
 - Claims without evidence ("blazingly fast" with no benchmarks)
+- Changelog-speak ("now supports", "new in 3.2", "coming soon") -- a README describes the tool's present tense; version-migration notes belong in CHANGELOG or `docs/`
 
 ## Report Format
 

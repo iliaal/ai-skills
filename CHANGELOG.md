@@ -5,6 +5,19 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.3.3] - 2026-08-03
+
+### Added
+- `ia-refine-prompt` gained a Machine-Parsed Text section for output a model reads with no one to ask: one directive per sentence, simple tenses, noun stacks capped at three, `must` and `never` reserved for real requirements, every referent named. A person resolves an ambiguous instruction by asking. A model resolves it by guessing.
+- `ia-receiving-code-review` classifies a fix before you start patching it: in-scope blocker, follow-up, or stop-and-escalate. Two review-triggered patch cycles that have not converged is itself the signal to stop and reclassify rather than keep editing.
+- `ia-verification-before-completion` captures the validation baseline before the first write on dependency bumps, framework upgrades, and migrations, and halts outright on a red baseline. A regenerated lockfile does not stash cleanly, so the usual retroactive base-branch proof is not available to you afterward.
+- `ia-code-review` gained a trap for the size-capped buffer that then parses whatever it kept. Truncated JSON usually throws and arrives disguised as a parse failure. Truncated NDJSON or CSV parses cleanly as a shorter valid document, and no caller can tell three records from three thousand.
+- `ia-refine-prompt` pairs every prohibition with the behavior to substitute, because steering by ban makes the banned thing more available, not less.
+- `ia-md-docs` says what earns space in a context file rather than only what to leave out: document what the agent cannot discover by reading the repo. The environment is a source of truth too, so a section restating it is a cache, and a cache earns its load only when the lookup was expensive.
+### Changed
+- `ia-nodejs-backend` scopes fail-open to transport failure only. When the outbound call is the security decision, the breaker's fallback is deny, and a response that arrived but cannot be trusted stays blocked: a 4xx, a malformed body, an unknown verdict value. The endpoint was reached and did not answer.
+- `ia-simplifying-code` raises the bar for deleting a guard that counters an external hazard: show the precondition is present and handled. A green suite proves nothing when the run may never have triggered the hazard at all.
+
 ## [4.3.2] - 2026-07-27
 
 ### Added
