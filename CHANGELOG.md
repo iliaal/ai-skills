@@ -5,6 +5,14 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.4.0] - 2026-08-04
+
+### Added
+- `ia-c-systems` covers C11 and later for systems code, libraries, and native extensions: module layout, naming as a greppability contract, orchestrator/leaf/adapter function altitudes, status enums with one producer per error value, and public-validates/internal-asserts boundaries. Four references carry the depth, including memory safety (sanitizer invocation, overflow-checked allocation, an undefined-behavior table, converting recursion to a bounded worklist) and a PHP extension dialect file for Zend API work.
+- `ia-cpp-systems` covers C++17 and later: RAII and ownership, rule of zero until a destructor appears and rule of five after, error models, and the three API decisions that break callers when they go wrong. References cover ABI boundaries and CMake tooling.
+### Changed
+- `ia-php-laravel` now says where php-src and native extension work belongs instead of only excluding it.
+
 ## [4.3.3] - 2026-08-03
 
 ### Added
