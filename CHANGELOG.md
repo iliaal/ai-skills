@@ -5,6 +5,17 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.4.1] - 2026-08-10
+
+### Added
+- `ia-cpp-systems` gained a Concurrency section, having previously sent people at threaded code with a TSan recommendation and no authoring guidance. It includes the guard that compiles silently and locks nothing: `std::lock_guard<std::mutex>{m};` builds clean under `-Wall -Wextra -Wshadow` and unlocks before the next statement runs.
+- `ia-agent-native-architecture` now says what to write in an MCP tool description, which is the field a model actually routes on. Precision over brevity, the boundary against sibling tools, and no worked examples, urgency boosters, or cross-tool scolding.
+- `ia-debugging` redaction now covers the transcript, not only outbound search queries. Reproduction loops read credentials from the environment so the value never enters what gets pasted back.
+### Changed
+- `ia-code-review` tracks every changed file from the original scope through covered, failed, pending, or explicit exclusion. Partial reviews can no longer return a ready verdict, and tests and deletions stay in the coverage denominator.
+### Fixed
+- `ia-document-review` blocked for approval without naming a harness tool, which degrades to nothing on three of the four distribution targets.
+
 ## [4.4.0] - 2026-08-04
 
 ### Added
