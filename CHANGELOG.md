@@ -5,6 +5,13 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.4.2] - 2026-08-18
+
+### Changed
+- `ia-cpp-systems` explains that `clang-analyzer-*` runs whether or not the config lists it, and that `WarningsAsErrors` leaves its findings non-fatal, so a use-after-free warns while CI stays green.
+### Fixed
+- `ia-python-services` prescribed check-before-write as an idempotency mechanism while code review files check-then-act as a race. Two Celery workers both read "absent" and both insert.
+
 ## [4.4.1] - 2026-08-10
 
 ### Added
