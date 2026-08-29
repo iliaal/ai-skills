@@ -4,7 +4,8 @@ class: discipline
 description: >-
   Structured code reviews with severity-ranked findings and deep multi-agent
   mode. Use when performing a code review, auditing code quality, or critiquing
-  PRs, MRs, or diffs.
+  PRs, MRs, or diffs. For the full multi-agent workflow, use the ia-review
+  command (/ia-review in Claude Code).
 ---
 
 # Code Review
@@ -52,6 +53,17 @@ Enumerate changed files **before** exclusions and track each path through `selec
 
 **Verification-mechanism carve-out:** even when a change stays single-pass by the exceptions above, if it *is* a verification mechanism (CI/CD gate, merge-block check, coverage/lint gate, build/deploy step, or test infra/mock that could mask a real failure), apply the "can this silently false-pass?" lens during the single-pass review — the mechanism can go green while the thing it guards is red. In deep review this same lens runs as a size-independent red-team trigger (see [deep-review.md](./references/deep-review.md)). A diff that modifies a documented-standards file (CLAUDE.md, AGENTS.md, CONTRIBUTING.md, STYLE.md, lint configs) gets the same treatment: it is not "pure documentation" -- apply deep-review's standards-disclosure rule (quote each rule added or loosened and what it suppresses in this same diff) during the single-pass review.
 
+### Outcome-integrity lens
+
+Apply these checks to tests, validators, CI gates, specifications, golden files, dependency policy, demos, and conformance tooling regardless of diff size:
+
+- Compare the base and head oracle. Flag weakened assertions, removed discriminating cases, narrower subjects, relaxed validators, or changed acceptance criteria that make the same defect pass.
+- Review golden and expected-output changes semantically. A regenerated file and a green suite do not prove that the new output is intended.
+- Require each new check, matrix, report, or process artifact to name the observed defect class or release capability it gates. Flag speculative verification machinery as scope without a deliverable.
+- Reject vendoring, wrappers, or shims that bypass an explicit dependency or runtime policy unless the policy itself changed through the repository's authorized decision path.
+- Look for demo identities, fixed records, special SKUs, or hard-coded subjects that prove only the showcased path. Require varied or runtime-selected subjects when general behavior is claimed.
+- Treat process-only changes as process changes. Do not describe them as feature delivery unless the requested deliverable is the process artifact itself.
+
 | Signal | Threshold |
 |--------|-----------|
 | Lines changed (excluding test files) | >300 |
@@ -79,7 +91,7 @@ Override: `deep` forces multi-agent, `quick` forces single-pass.
    - **Scope drift**: compare `git diff --stat` against the PR's stated intent. Classify CLEAN / DRIFT DETECTED / REQUIREMENTS MISSING; on drift, ask the author: ship as-is, split, or remove?
    - **Intent**: read the PR description, linked issue, or task spec. Deviation or under-delivery is a finding — the wrong problem solved correctly is still wrong.
    - **Prior discussions**: reconcile existing review comments so resolved issues aren't re-raised. Gate on a presence check; commands in [scope-resolution.md](./references/scope-resolution.md).
-   - **Automated gates**: run the project's test/lint suite (canonical commands in CI config).
+   - **Automated gates**: run the project's test/lint suite (canonical commands in CI config). A green pipeline proves only that the jobs it actually ran **and gated on** passed. Before citing "CI green" — or accepting an author's citation of it — read the CI config, enumerate the jobs, and check two things per job: whether it is allowed to fail (`allow_failure`, `continue-on-error`), and whether anything downstream depends on it. A job that runs, fails, and blocks nothing yields the same green as a job that never existed, so green does not even prove the jobs that ran passed. When a finding turns on test behavior ("the test would have caught this"), verify locally or assume the test does not run.
 2. **Structural scan** -- architecture, file organization, API surface; flag breaking changes. Added (`A`) files on a remote branch: use the diff content, not the working tree.
 3. **Line-by-line** -- resolve each unit's deterministic route via [language-profiles.md](./references/language-profiles.md); load one primary stack skill and at most one evidence-backed supplement, or use the generic fallback. Apply correctness, maintainability, performance, adversarial, and AI-code checks from [check-categories.md](./references/check-categories.md). Prefer questions ("What happens if `input` is empty?") over declarations.
 4. **Security** -- input validation, auth checks, secrets exposure, injection vectors (SQL, XSS, CSRF, SSRF, command, path traversal, unsafe deserialization), race conditions (TOCTOU). Grep-able patterns for the common vulnerability classes in [security-patterns.md](./references/security-patterns.md).
@@ -116,6 +128,7 @@ Prefix inline comments by required action: no prefix for blocking Critical/Impor
 - Blocking on personal preference -- approve with a Minor comment
 - Skipping Stage 1 -- never review code quality before verifying spec compliance; rubber-stamping without reading is not a review
 - Recommending fix patterns without checking currency -- verify the pattern is current for the project's framework version; prefer newer built-in alternatives
+- Accepting the library behavior a change is *justified by* -- when a refactor, comment, or docstring rests on "the SDK does X", that claim is the load-bearing part and usually the cheapest thing to check. Read the installed dependency's source or run a one-line probe against it; executing the predicate settles in seconds what a paragraph of reasoning about the library cannot. An unverified mechanism written into a module docstring propagates: every later change cites it as precedent
 - Fighting documented overrides -- a rationale-backed bypass (`CLAUDE.md`, `AGENTS.md`, inline comment) is owner-blessed: honor it, don't re-raise; if the rationale is missing, suggest documenting one. Plan-mandated defects are not self-justifying — report them labeled "plan-mandated" for the human to adjudicate
 - Resting a finding on an unverified absence -- read the region or grep the *exact* symbol expecting zero lines; a subagent's confident negative or a broad-pattern hit is not proof. When the finding rests on *exhaustive* coverage ("this symbol is unused", "nothing else calls this", "safe to change"), grep is the weakest tier, not the top one: prefer symbol-aware search (LSP or an MCP equivalent, which follows renames, re-exports, and barrel files), then structural AST search (`ast-grep`, which skips the string and comment hits regex reports), then text grep -- which stays correct for genuinely lexical checks like config keys and log messages. Fall through without ceremony to whatever the repo actually has. Dynamic dispatch, reflection, DI containers, string-keyed routes or config, generated code, and external consumers hide usages from every tier; when coverage was grep-only or one of those could apply, record the boundary in Residual Risks (`callsite completeness: grep-only`) or step the finding down rather than asserting absence. A finding that does not turn on exhaustive coverage needs no such note.
 - Calling a change a regression without a baseline read -- read the pre-change file (`git show <base>:<file>`), not just the hunk; cite the introducing commit when confirmed
@@ -173,5 +186,5 @@ References load at their point of use above. Additionally: [security-test-covera
 - `ia-receiving-code-review` -- inbound side. Tier map: `safe_auto` ≈ AUTO-FIX, `gated_auto` ≈ ESCALATE-for-approval, `manual` ≈ ESCALATE, `advisory` ≈ FYI
 - `ia-kieran-reviewer` agent -- persona-driven Python/TypeScript deep quality review
 - `/ia-review` -- full ceremony (worktrees, ultra-thinking); deep review here is lighter: parallel specialists, no worktrees
-- `/resolve-pr-parallel` command -- batch-resolve PR comments with parallel agents
+- `/ia-resolve-pr` command -- batch-resolve PR comments with parallel agents
 - `ia-security-sentinel` agent -- deep security audit; threat-model mode for new trust boundaries

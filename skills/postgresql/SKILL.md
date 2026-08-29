@@ -5,7 +5,6 @@ description: >-
   PostgreSQL schema design, query optimization, indexing, and administration.
   Use when working with PostgreSQL, JSONB, partitioning, RLS, CTEs, window
   functions, or EXPLAIN ANALYZE.
-paths: "**/*.sql"
 ---
 
 # PostgreSQL
@@ -44,8 +43,9 @@ paths: "**/*.sql"
 **Core rules:**
 - Every schema change is a migration. No ad-hoc DDL in production.
 - Migrations are immutable once deployed -- never edit a migration that has run in any shared environment.
-- Schema migrations and data migrations are separate files. Schema changes are fast and transactional; data backfills are slow and may need batching.
+- Schema migrations and data migrations are separate files. Schema changes are fast and transactional; data backfills are slow and may need batching. Exception: when one transaction is what closes a rolling-deploy null window, do not split reflexively -- see the `ADD COLUMN` lock note under Dangerous operations for the table-size disposition.
 - Forward-only in production. Rollback = a new forward migration that reverses the change.
+- A re-run guard that checks one object (`IF EXISTS`-style early return on the main table) is a valid proxy for "everything already applied" **only** when the entire migration body runs in one transaction. PostgreSQL rolls `CREATE TABLE` / `CREATE TYPE` / `CREATE INDEX` (non-concurrent) / `CREATE FUNCTION` / `CREATE TRIGGER` / `ALTER TABLE` back together, so table-exists implies the rest committed. Any statement that cannot run inside a transaction -- `CREATE INDEX CONCURRENTLY`, `ALTER TYPE ... ADD VALUE` on older versions, `VACUUM` -- sits outside that guarantee, and the guard then skips it on re-run and ships a partial schema. Confirm every DDL object is inside the one transaction before relying on the guard.
 
 **Expand-contract pattern** for zero-downtime renames and removals:
 
@@ -58,6 +58,7 @@ Never rename or remove a column in a single migration -- callers reading the old
 **Dangerous operations:**
 - `NOT NULL` without a `DEFAULT` on an existing table locks and rewrites every row. Add the column nullable first, backfill, then add the constraint.
 - `CREATE INDEX` (without `CONCURRENTLY`) locks writes for the duration. Always use `CONCURRENTLY`, which cannot run inside a transaction block -- keep it in its own migration.
+- `ADD COLUMN ... NULL` with no default is metadata-only and fast, but it takes `ACCESS EXCLUSIVE` and that lock is held until the enclosing **transaction** commits -- not until the `ALTER` returns. A migration that adds the column and then backfills every row in the same transaction blocks all readers and writers for the backfill's duration. Do not reflexively split it: the single-transaction ordering (`ADD` nullable -> backfill -> `SET DEFAULT`) is itself the fix for the rolling-deploy window where an old release inserts `NULL` before the default exists. The disposition is table size, not a rule -- on a small table accept the sub-second hold and state the row count; on a large one use expand-contract (deploy the column with a constant `DEFAULT` first, then a separate chunked backfill outside a transaction).
 - Large data backfills: batch with `FOR UPDATE SKIP LOCKED` to avoid locking the entire table:
 
 ```sql
@@ -171,7 +172,7 @@ Always index columns referenced in RLS policies. For complex multi-table checks,
 ## Query Optimization
 
 - Always `EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)` before optimizing
-- Use `pg_stat_statements` for slow-query detection and `pg_stat_user_tables` for bloat (see Detection queries below for the full SQL)
+- Use `pg_stat_statements` for slow-query detection and `pg_stat_user_tables` for bloat (see [operations.md](./references/operations.md) for the full SQL)
 - Sequential scan on large table -> add index or check `WHERE` for function wrapping
 - High `rows removed by filter` -> index doesn't match predicate
 - CTEs are inlined by default; use `MATERIALIZED`/`NOT MATERIALIZED` hints to control optimization
@@ -225,18 +226,7 @@ See [operations.md](./references/operations.md) for performance tuning, maintena
 
 ## Vector Search (pgvector)
 
-```sql
-CREATE EXTENSION vector;
-ALTER TABLE items ADD COLUMN embedding vector(1536);  -- match your model's output dimensions
-
--- HNSW: better recall, higher memory. Default choice.
-CREATE INDEX ON items USING hnsw (embedding vector_cosine_ops);
-
--- IVFFlat: lower memory for large datasets. Set lists = sqrt(row_count).
-CREATE INDEX ON items USING ivfflat (embedding vector_cosine_ops) WITH (lists = 1000);
-```
-
-Always filter BEFORE vector search (use partial indexes or CTEs with pre-filtered rows). Distance operators: `<=>` cosine, `<->` L2, `<#>` inner product.
+HNSW vs IVFFlat index choice, embedding column setup, pre-filtering, and distance operators: see [performance-patterns.md](./references/performance-patterns.md).
 
 ## Anti-Patterns
 
@@ -250,27 +240,7 @@ Always filter BEFORE vector search (use partial indexes or CTEs with pre-filtere
 | Missing FK indexes | See detection query in Index Strategy above |
 | `ORDER BY RANDOM()` | Use `TABLESAMPLE` or application-side shuffle |
 
-**Detection queries:**
-
-```sql
--- Slow queries (requires pg_stat_statements)
-SELECT query, mean_exec_time, calls
-FROM pg_stat_statements
-WHERE mean_exec_time > 100
-ORDER BY mean_exec_time DESC LIMIT 20;
-
--- Table bloat (dead tuples awaiting vacuum)
-SELECT relname, n_dead_tup, last_vacuum, last_autovacuum
-FROM pg_stat_user_tables
-WHERE n_dead_tup > 10000
-ORDER BY n_dead_tup DESC;
-
--- Unused indexes (candidates for removal)
-SELECT schemaname, relname, indexrelname, idx_scan
-FROM pg_stat_user_indexes
-WHERE idx_scan = 0 AND indexrelname NOT LIKE '%_pkey'
-ORDER BY pg_relation_size(indexrelid) DESC;
-```
+Detection queries for slow queries, table bloat, and unused indexes: see [operations.md](./references/operations.md).
 
 ## Verify
 

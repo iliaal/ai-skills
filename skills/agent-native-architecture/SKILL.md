@@ -91,7 +91,7 @@ When designing an agent-native system, verify these **before implementation**:
 - [ ] **Shared Workspace:** Agent and user work in same data space
 - [ ] **context.md Pattern:** Agent reads/updates context file for accumulated knowledge
 - [ ] **File Organization:** Entity-scoped directories with consistent naming
-- [ ] **Context Durability:** Incremental progress writes (WAL pattern) so interrupted tasks resume from last checkpoint
+- [ ] **Context Durability:** Incremental progress writes (WAL pattern) so interrupted tasks resume from last checkpoint, not from scratch. See [durability-and-attestation.md](./references/durability-and-attestation.md) Context Durability section for the atomic-rename and write-ahead-record design.
 
 ### Agent Execution
 - [ ] **Completion Signals:** Agent has explicit `complete_task` tool (not heuristic detection)
@@ -104,6 +104,7 @@ When designing an agent-native system, verify these **before implementation**:
 - [ ] **Available Capabilities:** System prompt documents tools with user vocabulary
 - [ ] **Dynamic Context:** Context refreshes for long sessions (or provide `refresh_context` tool)
 - [ ] **Trust levels for loaded content:** System prompt distinguishes trusted (developer-authored) from untrusted (user input, retrieved docs, tool outputs); untrusted text is data, never instructions. See [dynamic-context-injection.md](./references/dynamic-context-injection.md) Trust Levels section for the prompt-injection defense details.
+- [ ] **Delimiter authentication:** a writer-side property, never a repair applied to a finished document. Parsing a finished document into sections and re-emitting with generator-written delimiters *splits at the forged delimiter*, which places the forgery outside every fence the generator then writes, so it comes out renumbered and more authoritative than before. Three further requirements on the stamped-delimiter design in [dynamic-context-injection.md](./references/dynamic-context-injection.md): the token must be per-run (one that outlives its run authenticates a stale delimiter) and must be stripped before the content is forwarded, since it is authentication and not evidence; the round where the reader requires a token but the writer emitted none is undecidable, so **refuse** and name the token in the error rather than scoring it either way; and if the writer is a model, the reader's requirement is inert until the writer's own instructions tell it to stamp, so a gate whose writer never learned about it never arms. Verify two things by fixture instead of reasoning: that the token survives any redaction or normalization pass between writer and reader (a run of hex is exactly what an entropy rule rewrites), and that the untrusted payload still *arrives*, asserting that each forged delimiter sits inside the generator's fence rather than asserting it is absent.
 
 ### UI Integration
 - [ ] **Agent -> UI:** Agent changes reflect in UI (shared service, file watching, or event bus)
@@ -112,8 +113,9 @@ When designing an agent-native system, verify these **before implementation**:
 
 ### Governance
 - [ ] **Approval Gates:** Destructive or irreversible actions require user confirmation
-- [ ] **Audit Trail:** Agent actions logged with timestamp, tool, and outcome
+- [ ] **Audit Trail:** Agent actions logged with timestamp, tool, and outcome, keeping absent/partial/complete/measured-zero/unavailable distinct. See [durability-and-attestation.md](./references/durability-and-attestation.md) Audit Trail section for the attempt-record provenance design.
 - [ ] **Scope Boundaries:** Agent cannot access resources outside its designated workspace
+- [ ] **Content-Bound Attestation:** use one when the enforcement boundary cannot spawn the agent. See [durability-and-attestation.md](./references/durability-and-attestation.md) Content-Bound Attestation section for the judge/gate split and content-binding design.
 
 ### Hooks & Governance Automation
 - [ ] **Event Coverage:** Only 6 hook events fire in agent context (PreToolUse, PostToolUse, PermissionRequest, PostToolUseFailure, Stop/SubagentStop); session lifecycle logic lives in the orchestrator
