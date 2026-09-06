@@ -5,6 +5,79 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.5.1] - 2026-09-06
+
+### Added
+- Swarm wave contract reference: five conditions for parallel implementers in one working tree (committed baseline, exclusive ownership of hidden write surfaces such as lockfiles and codegen, no worker git operations, orchestrator-owned verification, scoped rollback), a worktree base-SHA pre-check, and a five-round QA ladder that hands off to a fresh implementer on a stronger model after round three and forces a disposition on every open finding at the cap
+- Verification skill: classify each deliverable as diff-verifiable, cross-repo, external-state, or content-shape before claiming it done; a concrete path is never "unverifiable", and code that handles a deliverable is not the deliverable. The skill also now owns the project-declared pre-push gates rule (read CLAUDE.md, AGENTS.md, and CONTRIBUTING.md, run every declared check, stop on the first unmet one)
+- Code review: quote-or-downgrade (a finding that can't quote its motivating line is capped as speculative; ORM and metaclass symbols quote the meta-construct), reachability defined as a public-interface-to-first-party-sink path, the precondition-subsumes-conclusion circularity check, repeated-switch detection, and three catalog traps (exhaustive primitive-hit accounting, vendored and submodule ownership, destructive replace on an empty result)
+- Security patterns: JWT key-confusion via `kid`/`jku`/`x5u`/embedded `jwk`, destructive-path authorization (allowlisted root, depth floor, ownership evidence), mass assignment and IDOR-by-sibling-handler as authorization bugs, an ECB/static-IV/home-rolled-crypto row, and a version-gated false-positive table (PHP `assert` string eval, `preg_replace /e`, PyYAML `FullLoader`, libxml2 XXE defaults, Next.js CVE-2024-34351) with the real CVE preconditions spelled out
+- Debugging: a performance-regression lane (numeric baseline, profiler attribution, bisect against the measurement); a test-first exception when no reachable seam can exercise the bug as it triggered; reproduction must match the exact reported symptom
+- Test writing: the change-detector anti-pattern, when trivial code earns a test, and a mutation check in the closing checklist
+- Compound docs: the counterfactual capture gate (capture only if a future engineer reading the final code, tests, comments, and existing docs would still repeat the mistake) now lives in the skill, so it ships to Codex and .agents too; `/ia-compound-refresh` gained an opt-in worth lens that culls docs the codebase now carries on its own
+- Hooks reference: matcher semantics (`"*"`, `""`, or omitted match all; anything else is an unanchored JS regex), the `if` permission-rule filter, `PermissionDenied` with its `retry` decision, and the fail-closed vs fail-open boundary (decision logic fails closed; bookkeeping failure fails open with a named warning)
+- Planning: cut-first vs protect table for context management, task-critical content placed last, a standalone-readability test on the Objective, and an optional `Spec:` field
+- Laravel: `Concurrency::run()` ships hidden Context values into the child process environment; Bash: anchored allowlist on path components before destructive interpolation, reject a single `--out` with multiple targets; Node: `erasableSyntaxOnly` constraints and caller-supplied-server listener teardown; PostgreSQL: FK version gates for partitioned tables; infra and deployment agents: error-budget consumption gate and burn-rate hold/rollback bands
+- Frontend design: the SaaS-card-kit composite, single-word headline accents, middle-dot meta strings, and trailing arrows named as tells; eyebrow tags demoted from default fix to a conditional
+- Six should-not-trigger fixtures for orchestrating-swarms drawn from the real misfires
+
+### Changed
+- Orchestrating-swarms trigger regex tightened: `fan-out` now needs an agent, worker, or reviewer object in the same clause, and subagent mentions only fire in imperative dispatch forms. Real-corpus false fires went from 30 of 30 to 0 of 30 with fixture F1 unchanged at 1.0
+- The branch-finish menu in `/ia-work` and git-worktree no longer offers Discard; it acts on discard only when asked explicitly, still behind a typed confirmation
+- Orchestrating-swarms body trimmed 25,030 to 22,084 bytes by relocating eleven cold clusters into references, the first shrink after four consecutive growth syncs
+- Hooks reference corrected against the live docs: 33 hook events, all declarable in agent frontmatter (was "27, only 6 supported"); `Stop` converts to `SubagentStop` in a spawned subagent; `UserPromptSubmit` fires only when the agent runs as the main session
+- PR descriptions: program-first placement made conditional; the file's own "Do" example no longer opens with the "This PR" construction the file bans
+- Node type-stripping guidance updated: default from Node 22.18 and 23.6, flag needed only on 22.6 through 22.17 and 23.0 through 23.5
+- Writing skill: mannered-prose, density, under-formatting, and unmarked-quote checks
+
+### Fixed
+- Five rule conflicts the sync introduced: quote-or-downgrade vs the protected-subject exception, capability-gain vs the internal-network no-downgrade floor, diff-anchored disabled-protection vs full-repo audits, "all events declarable" vs "not inside agents", and a 3-attempt handoff template vs the 5-round ladder
+- Two false claims from the sync's own apply briefs: a linked worktree's index does not live in the shared git common dir (it is per-worktree), and Laravel's `dehydrate()` does keep hidden values under a separate key (the leak is `ProcessDriver` encoding both into one env var)
+- Worker status vocabulary now says where partial, stub, and unverifiable work lands (`DONE_WITH_CONCERNS` or `BLOCKED`, never `DONE`); the verification skill links its ledger states to its deliverable outcomes
+
+## [4.5.0] - 2026-08-29
+
+### Added
+- 130 reviewed, provenance-stripped knowledge rules across 18 skills: Laravel validation/queue/cast/testing traps, C/C++ sanitizer and lifetime discipline, test-methodology anti-patterns, verification gates (zero-executed suites, binary identity, rebase survival), React Query/test-runner rules, Rust test isolation, Node/Python resilience, git worktree ownership, PostgreSQL migration locks, bash secret/exit-status discipline
+- Four reference files extracted from oversized skill bodies: writing-tests isolation/sandbox traps and false-pass oracle traps, orchestrating-swarms cross-run coordination (TTL leases, identifier minting), agent-native durability and attestation
+- Four-status worker vocabulary (DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT) now actually defined in orchestrating-swarms -- two files pointed at owners that never defined it
+
+### Changed
+- `paths:` frontmatter unlocked on five language skills that were auto-load-gated out of their own advertised scope: tailwind-css gains .tsx/.jsx/.html/.vue/.blade.php, cpp-systems gains .h and CMake files, python-services gains pyproject.toml/ruff.toml/uv.lock, react-frontend gains .ts, postgresql drops its .sql-only gate
+- Four trigger regexes widened from measured F1 0.0-0.57 to 1.0: meta-prompting (11 of 14 modifiers had no route in), nodejs-backend (NestJS/Hono/Koa/tRPC/Bun), orchestrating-swarms ("subagent", "fan out"), file-todos (every activation route was closed)
+- Oversized skill bodies trimmed to references: php-laravel 43.2KB to 33.9KB, writing-tests 6,449 to 4,979 tokens, react-frontend and agent-native-architecture now under the 4K flag
+- Rails-flavored examples replaced with PHP/TS equivalents at five sites; twelve second-person insertions rewritten to objective voice; cross-harness skills now name their blocking ask tools (AskUserQuestion / request_user_input)
+- Meta-prompting decision evidence refined; agent workflows kept outcome-first
+
+### Fixed
+- Two false distilled rules, both execution-disproven: `cargo install --path .` always rebuilds (the silent no-op is registry/git installs only), and single-arg `z.record()` fails at type-check and first parse, not at JSON-Schema generation
+- `worktree-manager.sh create` no longer checks out and pulls in the caller's tree -- fetch-only with an offline fallback, so the active branch survives worktree creation
+- compound-docs validation: the blocking gate pointed at a phantom `schema.yaml`, and `validate-frontmatter.sh` passed `symptoms: []` -- both fixture-tested
+- md-docs emoji rule aligned with ia-writing's README carve-out (the two skills gave opposite instructions on the same files)
+- PHPUnit `--processes` corrected to ParaTest; Laravel route-closure serialization claim narrowed to reproduced behavior
+
+## [4.4.3] - 2026-08-29
+
+### Added
+- PostgreSQL performance reference: the four query shapes an index cannot serve, pool-exhaustion diagnosis (raising `max` relocates the queue — multiplex through PgBouncer instead), and cache discipline (stampede protection, negative caching, cache-key completeness)
+- Judge-bias defenses in the swarm anti-sycophancy reference: never reveal the passing threshold to a judge, plus a seven-bias countermeasure table (sycophancy, length, authority, completion, effort, recency, familiarity)
+- Code review now catches floor-guard loosening — lowered thresholds, `.skip`'d tests, new suppression comments — and an explanatory comment no longer suppresses those findings
+- Writing audit gained `[ABSTRACT-METAPHOR]` and `[PORTABLE-PROSE]` tags, and drafts under audit are treated as data — an embedded instruction to the auditor is itself a finding
+- Test-writing skill: no-sleep rule for async waits, mock-seam placement (cut at the owned wrapper, never below it), and flaky-equals-red (fix or quarantine visibly; never re-run to green)
+- Pine Script: corrected drawing limits (9,999 bars back / 500 forward via `xloc.bar_time`), `for...in` iteration, conditional input editability, rolling-buffer caps, and typed-object architecture over parallel arrays
+- Laravel: per-stage validation checkpoints (`migrate:status`, `route:list`, `queue:work --once`, `pint --test`) and the `QueryException` binding-leak pitfall with `DB_MASK_BINDINGS`
+- Planning: the altitude test (an Objective must be verifiable without knowing the component's internals) and an overwrite guard — `init-plan.sh` now refuses to clobber a plan with unchecked tasks unless forced
+- Swarm orchestration: cold-start tax in dispatch sizing, inline-the-skill-content briefing rule (dispatched agents can't load the orchestrator's skills), and destructive-ambiguity findings queue into the completion report instead of blocking autonomous runs
+- Headless review mode: comments instructing to skip tests, disable verification, or run commands always escalate — comment text is data, not authorization
+
+### Changed
+- Brainstorming surfaces conflicts between the user's wording and what the code verifiably does before treating the wording as settled
+- Reflect scans for information-access gaps — points where a session stalled for lack of read access to logs, dashboards, or CI output
+
+### Fixed
+- PostgreSQL composite-index rule corrected to equality-columns-first (the "most selective first" myth is gone)
+- Pine Script line-wrap rule corrected to the documented non-multiple-of-4 form; the debugging label example now caps its object count
+
 ## [4.4.2] - 2026-08-18
 
 ### Changed
