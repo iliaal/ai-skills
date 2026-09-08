@@ -5,6 +5,22 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.5.2] - 2026-09-07
+
+### Changed
+- Expanded practical guidance in `ia-code-review`, `ia-writing-tests`, `ia-debugging`, and `ia-verification-before-completion` for review evidence, regression oracles, baseline comparisons, and completion claims. Moved detailed guidance into conditional references to keep skill entrypoints within the shared token budget.
+- Expanded framework and systems references in `ia-php-laravel`, `ia-postgresql`, `ia-react-frontend`, `ia-tailwind-css`, `ia-c-systems`, `ia-cpp-systems`, and `ia-rust-systems`, including persistence pitfalls, concurrency, test selection, and API boundaries.
+- Aligned `ia-planning`, `ia-brainstorming`, `ia-receiving-code-review`, `ia-document-review`, and `ia-reflect` with the requested scope and existing authorization. Reviews and diagnoses retained their read-only scope unless changes were authorized.
+- Updated `ia-orchestrating-swarms` for current Claude team operations, exclusive file ownership, parent-owned integration, and fresh independent reviewers. Aligned the same ownership rules in parallel PR and todo resolution commands.
+### Fixed
+- Preserved dirty, ignored, locked, current, and unowned worktrees in `ia-git-worktree` cleanup. Corrected main-checkout detection and made directory changes explicit to the calling shell.
+- Corrected authorization and rollback examples in `ia-agent-native-architecture`, path containment in `ia-debugging`, and atomic configuration replacement in `ia-linux-bash-scripting`.
+- Corrected examples in `ia-rust-systems`, `ia-terraform`, `ia-php-laravel`, `ia-postgresql`, `ia-tailwind-css`, and `ia-code-review`, including internal-error redaction, migration history, missing-versus-null values, query-plan assessment, and browser CORS behavior.
+- Preserved boolean types and evaluation counts in `ia-simplifying-code`. Clarified untrusted screenshot content, real metrics, and server/client composition in `ia-frontend-design`.
+- Repaired structured YAML validation in `ia-compound-docs` and completion/dependency handling in `ia-file-todos`. Kept skipped triage items pending.
+- Fixed missed triggers for `ia-planning`, `ia-python-services`, `ia-orchestrating-swarms`, and other process and language skills, with positive and negative regression fixtures and coverage through the actual injection hook.
+- Paginated PR comments, reviews, review threads, and nested replies, and rejected incomplete or failed responses. Corrected the resolver's GraphQL reply contract and the numeric REST comment-ID example in `ia-receiving-code-review`; both used approved reply text from a file.
+
 ## [4.5.1] - 2026-09-06
 
 ### Added

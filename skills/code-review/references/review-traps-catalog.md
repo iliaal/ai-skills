@@ -137,6 +137,10 @@ Only pattern 2 is a finding.
 
 **PHP `json_encode` comparison is type-safe.** `json_encode(1)` vs `json_encode("1")` produces `1` vs `"1"` — distinguishable. `json_encode($a) !== json_encode($b)` is a valid deep-equality check for JSON-serializable values.
 
+**PHP `preg_match` returns `false`, not `0`, on a PCRE engine error.** Exhausting `pcre.backtrack_limit` (default 1,000,000) is an error, so a plain truthiness test reads a correct subject as unmatched; a lazy `.*?` before an end anchor reaches that limit at around a megabyte of subject. Distinguish `false` from `0` and check `preg_last_error()`; the fix is usually a greedy `.*`.
+
+**PHP `empty()` as the absence test collapses an empty array into "not submitted".** `empty([]) === true`, so a partial-update endpoint written as `empty($data['key']) ? null : map(...)`, with the updater guarding `if ($dto->key !== null)`, cannot distinguish a client sending `{"key": []}` to mean "none" from a client omitting the key. Every partial update works and only the clear-all affordance breaks: 200 returned, nothing written, and the refetch restores what the user just deleted. `isset()` and `?? null` distinguish a submitted empty array from absence, but conflate a submitted null with absence; `array_key_exists` distinguishes presence even for null. `empty()` and plain truthiness collapse empty arrays and other falsy values (`0`, `"0"`, and `""`); objects remain truthy. Bound the finding to the remove-all case, since removing *some* items works, and attack the remedy before proposing it: letting `[]` through starts deleting on a payload that previously did nothing, so count the mapping function's callers, confirm the sync path survives an empty array, check whether an existing test pins `[]` as "unchanged", and sweep the request pipeline (`prepareForValidation`, serializer defaults, `array_filter`, `?? []`) for anything upstream that can synthesise `[]` from something that was not the client saying "none".
+
 **Laravel 11+ `HasUuids::newUniqueId()` returns `Str::uuid7()` (time-ordered).** `latest('id')` on a UUIDv7 PK sorts chronologically — the "UUIDs sort lexicographically, not chronologically" trap only applies to Laravel ≤10 or models overriding `newUniqueId()`.
 
 **Laravel 11+ `HasOneOrMany::limit()` in an eager-load is per-parent, not global.** `->with(['relation' => fn ($q) => $q->limit(N)])` uses `groupLimit` when `$this->parent->exists` is false (eager-load path), which the older "this limits rows total, not per parent" finding no longer applies to.
@@ -195,6 +199,14 @@ When flagging a language/framework idiom as broken, first check the vendor sourc
 
 **Fix:** anchor severity in concrete constants and numbers from the code ("20-minute floor", "every inactive bar") — a named constant is harder to wave off than a hypothetical. State the severity tag and stop; no minimizing commentary.
 
+## A defect demoted to "considered, not raised" was never counted
+
+**Trap:** noticing one instance of a mechanical defect -- a stranded docblock, a stale comment, a magic literal, a missing `@param`, a duplicated predicate -- judging it too small for a thread, and putting it in the round's summary as a "considered, not raised" line.
+
+**Reality:** the demotion is a claim about the *count*, made without counting, and deciding the item is too small is exactly what removes the reason to measure it. The sweep is usually one command and was runnable before the demotion. N=1 is hygiene; N=8 is a thread, and the extra instances need not be the same defect in kind -- among eight stranded docblocks, two documented behavior the change had removed, which invites the next reader to restore it.
+
+**Fix:** before writing a mechanical defect into a summary line, run the sweep for its siblings at head *and* at base. The count decides the severity; the base run separates "this change introduced eight" from "the file was always like this"; and the sweep's output is the note, because an author fixes a table faster than a description.
+
 ## Plan-mandated defects vs. documented overrides
 
 **Trap:** treating everything the plan, task brief, or convention doc blesses as beyond review — or the opposite, re-raising a concern the project has explicitly overridden.
@@ -243,3 +255,139 @@ When flagging a language/framework idiom as broken, first check the vendor sourc
 **Reality:** the job cannot distinguish *confirmed empty* (the source explicitly answered "zero rows") from *could not check* (an auth failure, a timeout, or a malformed response deserialized to an empty list). The failure shape recurs: an upstream 401 becomes an empty array, the empty array is read as "zero rows," and the job wipes every good row in place of the rows it failed to fetch.
 
 **Fix:** fail the job on any non-success status before the destructive step. Require the source to assert emptiness explicitly — a count or checksum, not merely an empty array. Make the replace transactional so a failed reinsert rolls back the delete instead of leaving the table empty.
+
+## A zero-result search needs a positive control
+
+**Trap:** reading an empty result from a grep, a structured extraction, or a delegated sweep as evidence that the subject is absent.
+
+**Reality:** every silent failure of the search produces the same empty output as a true negative. `cmd || echo "none found"` cannot distinguish exit 1 from exit 129 -- a pattern starting with `-` parses as an option and needs `-e`. `git grep <rev>` scopes to the shell's working directory, so an earlier `cd` re-scopes every later search, while `git show <rev>:<path> | grep` is immune. A structured extraction (`jq`, a JSON comprehension) addressing the wrong nesting level returns a measured-looking 0. Other producers of the same zero: a pipeline truncated by a pager or `head`, a line-oriented pattern against a construct formatted across lines, a member inherited from an ancestor class, a file the tool classified as binary and silently suppressed, a directory the scanner excludes, and an invocation that lives in another repository.
+
+**Fix:** before concluding absence, run a positive control on a token known to be present, in the same command shape, flags, and working directory. Read the paths, not the count, on any sweep whose pattern also appears in prose -- documentation prescribing the sweep self-matches. Print the row count beside the rows. A symbol visibly present in a file already read and globally absent from the search is a broken oracle, never a discovery.
+
+## A guard imported at one site leaves its siblings unguarded
+
+**Trap:** accepting a fix, cap, or validation because it is correct at the site it touches.
+
+**Reality:** guards arrive one site at a time. A cap added to one allocator leaves the neighbour unbounded; a fix naming two members of a family skips the third; the skipped sibling can carry an extra defect of its own.
+
+**Fix:** read the fix commit's changed-file list, grep every sibling for the same call or shape, and give each an explicit disposition. Before proposing the same guard to a sibling, check that its call site supports it -- a cleanup-on-failure guard needs an exclusive-creation signal.
+
+## A derived constant is cleared by its arithmetic, not by the dimension it guards
+
+**Trap:** a diff introduces a magic number and, unusually, shows its work -- a docblock or config comment derives it ("the tightest per-provider throttle is 10/min and a job gets 15 attempts, so 10 x 15 = 150"). Every term is checkable at head, so each one gets checked, all of them hold, and the constant is recorded as cleared.
+
+**Reality:** the derivation produces one quantity and the guard compares a different one. Same units, different dimension: the derived quantity was *how deep a queue one job survives*, while the guard reads `if ($requested > $cap)` where `$requested` is this invocation's candidate count. A per-call cap on a cumulative hazard is defeated by repetition, so the number can be perfectly derived and still not bound the thing it was derived against. Input verification is what suppresses the question -- the checks ran and came back clean, and a well-reasoned derivation reads as a sign the author thought about the hazard rather than a prompt to reopen it. A verified input can also be a *shared* budget: confirming that a job gets 15 attempts does not entitle this derivation to all 15 when cooldown waits and single-flight waits claim the same ceiling.
+
+**Fix:** for any guard shaped `if ($measured OP $CONST)` where `$CONST` arrives with a derivation, write two sentences before accepting it -- what the derivation produces, in words, with its scope; and what `$measured` holds at that line, in words, with its scope. If the scopes differ (per-call vs cumulative, per-entity vs global, per-window vs total), the guard does not bound the derived hazard however sound the arithmetic; then name what reopens the gap: repetition, concurrency, or a second producer writing the same resource. Check each input for other claimants before granting the derivation the whole budget. When the answer is repetition, read the text that tells the user what to do after a refusal -- copy instructing them to retry with a narrower filter builds exactly the depth the cap exists to prevent, and it is invisible from the file the guard lives in.
+
+## Adding a member to a shared contract breaks outside the changed file set
+
+**Trap:** adding a method to an interface, abstract class, trait, or protocol and scoping the type gate to the touched files.
+
+**Reality:** the breakage is in untouched implementers, often a load-time fatal, and test doubles are the highest-yield location. The cross-branch variant -- one branch adds the member, another adds an implementer -- merges clean and fails to load.
+
+**Fix:** enumerate implementers at head across source *and* test directories, and run the gate over the untouched ones. For the cross-branch case, list the other live heads, compose the merge in a scratch worktree, and load the class, with a positive control.
+
+## A fix extends a kind-keyed allow-list by exactly the kind the reproducer named
+
+**Trap:** accepting a one-member addition to an allow-list keyed on a node kind or other discriminator, because the reproducer it closes is real.
+
+**Reality:** the allow-list encodes an invariant, and every member sharing that invariant shares the defect. A helper refactor has the same shape: it migrates the call sites its author listed, and the one it missed still runs the old inline form.
+
+**Fix:** state the invariant, enumerate the dispatch family against it, and require every member covered in the same commit and the same test.
+
+## A comment that justifies an omission has no code to re-derive it from
+
+**Trap:** accepting "X is deliberately not redone here, because the checks above only read immutable values" -- or "safe to cache, inputs are immutable", "no lock needed, write-once" -- as settled.
+
+**Reality:** the clause enumerates what the current code reads, and a later commit adds a member that breaks it silently. A comment describing what code *does* gets re-derived by the next reader; a comment explaining why something is *not* done is a terminal answer nobody re-checks. A revert has the same effect, leaving behind the rationale prose the reverted fix was born with.
+
+**Fix:** when a diff adds a validation, guard, or filter, grep the file for sentences characterizing what "the checks above" read. When a diff edits a docblock stating a precondition, diff the sentence itself. When a guard changes, expect the docstring stating its contract to be out-of-hunk.
+
+## Policy comments are owner-blessed; factual comments are not
+
+**Trap:** treating every comment inside the diff as baseline truth, including one that asserts something about the world outside the repository.
+
+**Reality:** the two kinds behave differently. A comment recording a *policy decision* ("we allow X because Y") is owner-blessed and stays honored -- see "Plan-mandated defects vs. documented overrides". A comment asserting a *fact about something outside the repository* ("the SDK emits a loose union", "the backend hasn't shipped this yet") is the most stale-prone artifact in the tree, and it self-injects into every reviewer who reads the diff, so unanimity around it proves nothing.
+
+**Fix:** make the external-fact comment the claim under test and settle it against the installed dependency or the remote's current state. When a diff *removes* a workaround together with its rationale comment, weight the removal: the author deleting it has usually re-checked the premise more recently than whoever wrote it.
+
+## Full-replace payload lifted from an older sibling migration
+
+**Trap:** approving a data migration whose stated purpose is "swap one validator" because the replacement payload is internally consistent.
+
+**Reality:** the payload was cloned from an earlier migration and edited by one line. Every migration touching the same key since is reverted the moment the full replace runs, and deleted values come back. No concurrency is involved, and no test covers it because the store is absent from tests.
+
+**Fix:** compare the payload against the row's *current* state, walk every migration on the same key since the snapshot date, and require read-modify-write for a single-field change. A one-line motivation implemented as a whole-object rewrite is the tell.
+
+## Stakes keywords fired by prose that documents the hazard
+
+**Trap:** running a risk-triage grep (migration, `DROP`, `DELETE`, `rm -rf`) over a diff that is mostly markdown, and escalating on hit count.
+
+**Reality:** a knowledge base about destructive operations contains every destructive keyword because it documents them.
+
+**Fix:** evaluate risk triggers against executable files only. A reference-integrity sweep over the same diff must exclude provenance lines (`Absorbed:`, `Supersedes:`) or drown in them -- the surviving dangler hides in an example citation inside prose.
+
+## A static reviewer's verdicts are routing, not conclusions
+
+**Trap:** reading a static or LLM reviewer's "Clean" as an all-clear and its "Critical" as a confirmed defect.
+
+**Reality:** on a churn hotspot a confident "Clean" is low-confidence evidence of absence -- it names the path it did not trace -- and a confident "Critical" is scrutiny routing until a reproducer runs. Sequence-dependent defects (use-after-free across an ownership boundary, reentrancy, state-machine preconditions) sit above the ceiling of read-and-reason review even with perfect file coverage.
+
+**Fix:** treat each verdict as a queue position. Require a reproducer before a "Critical" becomes a finding, and route the sequence-dependent classes to a fuzzer under sanitizers instead of widening the static pass.
+
+## A wait-for-steady-state call is not a deploy gate
+
+**Trap:** accepting -- or demanding -- a "wait until the service is stable" call as the gate that proves a deployment succeeded.
+
+**Reality:** a waiter asserts the service settled, never that the new revision is running. Where the platform auto-rolls-back a failed deployment, the scenario the gate was added to catch is the one that makes it pass: the bad revision is reverted, the service stabilises on the old image, and the waiter returns success.
+
+**Fix:** read the rollback configuration before accepting the gate *or before flagging its absence*. When rollback is on, gate on the identity of the running revision rather than on stability.
+
+## "The gate is already red on the base branch" is one query away
+
+**Trap:** accepting an author's claim that a failing job also fails on the base branch, and dropping the finding on it.
+
+**Reality:** the claim is usually sincere and still wrong, because the author's machine builds against a different artifact than CI does (a regenerated contract, a different config source). One error in the trace against several in the author's account is the tell, and an error citing a line the change itself added settles it.
+
+**Fix:** list the base branch's recent pipelines, confirm the specific job *ran* rather than being skipped by a path filter, and compare its failures against the ones on the head.
+
+## Posting a remedy without replaying the trigger through it
+
+**Trap:** posting a finding that ships a suggested fix as soon as the defect claim is evidenced.
+
+**Reality:** such a finding carries two claims, and only the defect claim gets graded. A `valid` verdict on the defect lends the fix its credibility, and the author implements it verbatim. Remedies reproduce the bug routinely -- one positional comparison swapped for another, a guard that breaks a co-tenant caller, a DOM toggle inert against the element's actual classes. A partially-correct remedy launders the half it does not fix. Executed evidence for the defect claim feels finished, which is exactly why the check on the fix gets skipped.
+
+**Fix:** run the finding's own trigger input through the suggested fix before posting, at every severity. Each part of a multi-part remedy needs its own run; a guard-shaped remedy copied from a sibling needs one structural check -- does the guard read state that survives the failure it guards against? When one remedy covers N findings, replay it against each failure case. If the harness is gone, post the claim alone. Cold-read the new mechanism the fix ships and give its defects their own severity.
+
+## Writing a remedy looser than the finding
+
+**Trap:** wording the fix suggestion more loosely than the mechanism sentence that motivated it.
+
+**Reality:** the author implements the prose literally, so every quantifier, hedge, verb, and qualifier ships. "The stub" where "every stub" was meant leaves siblings stale; a defensive "and more than one" carves out exactly the cell where the defect survives; a hedge the author tightens is the version that lands; the half of a clause left unrewritten acquires the reviewer's endorsement.
+
+**Fix:** grade the verb. Re-read, re-check, refresh, and "verify again just before" only *narrow* a check-then-act window, while a conditional write with the precondition in its predicate, a uniqueness constraint, a lock taken by every writer, or compare-and-swap *closes* it -- a remedy that does not discharge its own mechanism sentence is cosmetic, and its own note refutes it. Prescribe the derivation, never a literal measured off the local tree. Reassurance clauses ("still works", "cannot happen") carry the finding's evidentiary bar, because authors quote them into the code as comments where they become premises for every later reader. A remedy that destroys information (mask, truncate, hash, round) is always sold with a clause about what survives, and that clause is a testable claim about the corpus.
+
+## Reviewing a prescribed fix for compliance instead of consequence
+
+**Trap:** on a follow-up round whose delta is the fix the review asked for, checking whether the change says what the finding said.
+
+**Reality:** it does, so review collapses and nothing outside the checklist gets read; reviewing against acceptance criteria the same reviewer wrote makes for a worse reader of them. A defect *created by* a fix is neither a prior finding nor obviously new work, so the fixed/not-fixed frame never asks about it.
+
+**Fix:** budget the round to verify the fixes, then re-read the delta as if the prior round had never happened, quoting each criterion verbatim beside the change. Name the complement of the fix's new predicate (threshold, type check, early return) and ask whether the mechanism raised earlier lives there too; diff the remedy's outcome against every other rule the same commit states. An added assertion, a rewritten comment, or a corrected paragraph is unreviewed prose held to the finding's bar; after a correction lands, grep the corrected claim and any retracted identifier across every artifact that carries it.
+
+## Treating prior clearances as settled
+
+**Trap:** applying "don't re-litigate" to clearances the way it applies to findings.
+
+**Reality:** a clearance retires an area for every later round and gets quoted back by the author under the reviewer's name. A clearance carrying an implicit quantifier ("both guards are load-bearing", "all the callers were updated") has a denominator that came from reading, and reading is what missed the third one. A clearance written as a list is worse -- one sentence of evidence spread over N subjects.
+
+**Fix:** derive the denominator from the code and state it ("three guards, two pinned, one not"); give each subject its own evidence line, or say plainly it was read and not tested; where the subject can be instantiated many ways, state the bounding invariant instead of enumerating. Re-derive a clearance whenever the current change exists because of it, and every round when its premise is a non-existence claim ("nothing implements this yet"). When a round establishes a general mechanism, grep prior clearances for the contradicted premise -- settled means the fact still holds, premise-dead means the later finding that falsified it can be named. Write clearances that name the fact, not the API, and scope them to one axis.
+
+## Accepting an author's correction because it arrives with evidence attached
+
+**Trap:** conceding a finding because the author's rebuttal arrives with a command, a log excerpt, or a measurement attached.
+
+**Reality:** the finding got three rounds of scrutiny and the rebuttal gets none. A correction right about the instance can be wrong about the class, and a "Verified" tag on a prior reviewer's note certifies their confidence, not the claim.
+
+**Fix:** re-derive the corrected premise independently, counted rather than eyeballed, with a control that must come back different. When the correction turns on a magnitude, vary the magnitude before conceding the class. A correction claiming the defect reached further than the finding said widens the fix into territory nobody scoped or tested -- scope and test that widening rather than absorbing it.

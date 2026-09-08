@@ -112,3 +112,11 @@ $user = User::factory()->make();
 ```
 
 Always use `create()` for feature tests (persists to DB). Use `make()` only for unit tests that need a model instance without persistence.
+
+## Factories build the model unguarded
+
+`Factory::makeInstance()` wraps `new $model($attributes)` in `Model::unguarded(...)`, so a factory can set a column that `$fillable` would reject and `$guarded` would block. A non-fillable fixture attribute therefore needs a production-writer check; it is not proof of an unreachable row. `$fillable` governs mass assignment, while direct property assignment followed by `save()`, query-builder writes, observers, or database defaults can supply the same value.
+
+For any test that pins a guard, a filter, or a "this column decides X" behaviour, compare the factory payload with the model's mass-assignment rules, then trace the actual production writers for mismatches. Compare sibling fixtures using `null` and real values against those write paths. Reject a fixture as unreachable only after establishing that no relevant production path can produce its preconditions; do not discard an assertion solely because an attribute is absent from `$fillable`.
+
+The neighbouring question is the same one in the other direction: for every precondition the fixture supplies, name the production actor that supplies it. "Nothing does" is the finding.

@@ -4,7 +4,7 @@ Load this reference when dispatching judge panels, running parallel reviewers, o
 
 ## Cold-start agent isolation
 
-Each agent in a swarm receives only the task description and fresh context. No session history, no prior agent outputs until an explicit synthesis phase. When running parallel reviewers or evaluators, the orchestrator holds all outputs until every agent has submitted independently, then passes the collected results to a synthesis agent.
+Each independent reviewer or evaluator receives the full task, target artifact, criteria, and operative instructions in fresh context. No implementer session history or prior verdicts until an explicit synthesis phase. In Codex use `fork_turns: "none"`. When running parallel reviewers or evaluators, the orchestrator holds all outputs until every agent has submitted independently, then passes the collected results to a synthesis agent. Implementers continuing their own unit may retain its context.
 
 ## Fresh instances on every re-dispatch round
 
@@ -18,13 +18,19 @@ When multiple candidates are evaluated (e.g., parallel implementations, competin
 
 A judge told "3.5 passes" anchors on the boundary and drifts scores toward it. The judge prompt carries the rubric and the scale; the orchestrator holds the threshold and applies it to the returned score. The same applies to consequences — "if this fails, the run aborts" is pressure toward leniency, not context.
 
+The expected verdict is the same anchor. Briefing an evaluator with the outcome you anticipate — "we expect nothing here", "this probably duplicates ours" — produces confirmation: the reader string-matches against the expectation and stops, missing gaps one abstraction level up. State the question and the comparison basis; hold the prior.
+
+## Keep the judge out of the producer's lineage
+
+A second opinion is independent only while the evaluating model is neither the producer nor a sibling from the same lineage. A validator chain written as an ordered model list falls back on a transient error to the next entry, which is usually the producer's sibling — the fallback silently converts an independent review into a self-review. Order the chain by provider lineage, and drop whichever model produced the artifact under review.
+
 ## Judge biases and countermeasures
 
 Structural isolation (the patterns above) does not remove per-judgment biases. Name the countermeasure in the judge prompt for the biases the task invites:
 
 | Bias | Failure mode | Countermeasure |
 |------|--------------|----------------|
-| Sycophancy | Scores drift up because output "looks like effort" | Require one named defect per candidate before any score; score-only replies are invalid |
+| Sycophancy | Scores drift up because output "looks like effort" | Require criterion-linked evidence before scoring each candidate: verified defects, or explicitly no defects found with checked scope and limitations. Never invent a defect to meet a quota; score-only replies are invalid |
 | Length | Longer output read as more thorough | Instruct scoring on criteria coverage; state that unrequested length is a cost, not a merit |
 | Authority | "The senior agent / the spec author wrote this" inflates trust | Strip authorship and provenance from candidate labels |
 | Completion | Finishing read as succeeding | Judge against acceptance criteria, not against "did it produce something" |
