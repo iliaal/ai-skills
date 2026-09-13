@@ -5,6 +5,19 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.5.3] - 2026-09-13
+
+### Changed
+- `ia-agent-native-architecture` gained two references: CLI-as-agent-interface design (stdout/stderr/exit-code contract, TTY-aware JSON, progressive schema disclosure, safety tiers) and an operator-approval loop for external sends (content-hash approval binding, single-winner claim, terminal `unknown`). MCP tool design now covers bounded-scan incompleteness and live-action opt-in; hooks guidance covers Node stdout flushing and CLI flag parsing in gates.
+- `ia-orchestrating-swarms` covers resource reach versus authorization, orchestrator context exhaustion with a disk handoff to leaf subagents, bounded result collection, lock-free right-of-way between independent sessions, mergeable registry shapes, and harness-injected instruction files. Nested dispatch is described as unreliable rather than impossible.
+- `ia-code-review` adds `--no-textconv --no-ext-diff` to every review-content `git diff` and `git show`, reports embedded instructions as findings, redacts credential values in reports, gives module passes full file bodies, defines an `uninspected` state, scopes reviewer independence to corroborating passes, and adds agent-lifecycle discipline for multi-agent reviews.
+- `ia-nodejs-backend` gained an observability-tracing reference: span kinds, the SERVER/CLIENT status asymmetry for 4xx, Collector-side sampling, a metric cardinality budget, and a never-instrument list.
+- `ia-frontend-design` asks for design register and mode, routes greenfield product work to an established component system before bespoke design, drops Geist and Outfit from the recommended faces, and catalogs crushed tracking, unthemed browser chrome, and nested cards as tells.
+- `ia-php-laravel` documents `Queue::route()`, the Mercure broadcast driver, vector search on pgvector/MariaDB/MongoDB, and the 13.31.0 change to closure-form `wherePivot()`. `ia-tailwind-css` covers `color-mix()` alpha tokens and `--color-*: initial`. `ia-python-services` marks ORJSON/UJSON responses deprecated and documents native SSE and `scope="function"` dependencies. `ia-terraform` names OpenTofu-only encryption and backend variables. `ia-rust-systems` adds tokio-console. `ia-linux-bash-scripting` reports a missing shellcheck as skipped, not passed.
+- `ia-planning` bans wall-clock estimates in favor of Small/Medium/Large scope sizing (triage and plan templates aligned), defers to an existing spec system's format, and requires execution approval to live in the plan artifact. `ia-brainstorming` resolves fact questions by inspection mid-interview. `ia-writing-tests` names horizontal slicing as an anti-pattern. `ia-receiving-code-review` reads Conventional Comments prefixes. `ia-simplifying-code` prefers deletion and treats a no-op pass as a valid result. `ia-writing` flags process narration and bare tallies while keeping counts that are evidence. `ia-verification-before-completion` rules out the task's own formatters and hooks before calling a failure pre-existing.
+### Fixed
+- `ia-compound-docs` and `ia-file-todos` dropped `disable-model-invocation` and the Codex `allow_implicit_invocation: false` twin: the harness refused the explicit `Skill()` calls four commands make into them. The Codex regression suite now asserts no skill carries either flag, and README describes the current state.
+
 ## [4.5.2] - 2026-09-07
 
 ### Changed
