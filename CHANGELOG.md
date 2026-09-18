@@ -5,6 +5,21 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.6.0] - 2026-09-17
+
+### Added
+- **A `claude plugin eval` suite for the `ia-code-review` skill** at `plugins/whetstone/evals/`: five positive cases (a PHP IDOR diff, a Python two-bug diff, a TypeScript file audit, a brief carrying reviewer questions, and a clean diff that must come back ready to merge) and two negatives that must not produce a review verdict. Graders check the behaviours the skill claims -- the skill fired or stayed silent, CR ids present, a verdict line, the specific defect found and correctly located, nits ranked below bugs, no fabricated findings.
+- `ia-code-review` gained a Composer review reference covering production requirements, platform constraints, autoloading, installation, and resolution and packaging checks, with compatible library ranges preserved and concrete deployment evidence required.
+### Changed
+- `ia-code-review` replaced generic PHP style and framework assumptions in its language profiles with evidence-conditioned coercion, null and key, by-reference iteration, array, lifecycle, and input-flow checks.
+- Four skills now name the harness question tool when they block on a user decision. `ia-document-review`, `ia-compound-docs`, and `ia-orchestrating-swarms` name `AskUserQuestion` for Claude Code and `request_user_input` for Codex, with numbered options in chat as the fallback. A bare "ask the user" degraded silently on three of the four distribution targets.
+- `ia-spec-flow-analyzer` now names `ia-document-review` as the general structural pass and itself as the flow-specific complement; `ia-database-guardian` defers Postgres query, index, and type patterns to `ia-postgresql` and scopes itself to migration-safety review. Both boundaries live on the agent side, because skills ship standalone where the agent does not exist.
+- `ia-kieran-reviewer` gained a report format binding its findings to `ia-code-review`'s severity ladder, sequential CR ids, measured `file:line` citations, and verdict vocabulary, rather than carrying a duplicate template.
+- `ia-git-worktree` rewrote its ownership rules in objective voice, and `ia-meta-prompting` scoped its `/ia-verify` mention to Claude Code and dropped a second-person line.
+### Fixed
+- `ia-document-review` had no Step 7: an earlier reference offload removed the reader test without renumbering what followed. `ia-simplifying-code` gave two different orderings of one priority list in adjacent lines, and `ia-python-services` stated its coverage target twice.
+- The eval suite's skill-fired graders asserted only that some skill ran, and the harness excluded them from scoring because no arm was declared -- so nothing verified that `ia-code-review` specifically fired. They now pin the skill name and score in both arms. The clean-diff grader was also stricter than the severity ladder it tests, which made the case unpassable unless the skill under-reported against its own rules.
+
 ## [4.5.3] - 2026-09-13
 
 ### Changed
