@@ -5,6 +5,24 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [4.6.1] - 2026-09-20
+
+### Changed
+- **`ia-code-review` gained a symmetric evidence bar.** The protected-subject list now covers authentication and authorization, injection, secrets exposure, cryptography, and data loss alongside the existing memory-safety and concurrency classes, and rejecting a finding in any of them requires a refuting `file:line`, version-specific documentation, commit provenance, or a discriminating test result. A generally passing suite and an assumed framework guarantee are named as insufficient. A rationale-backed owner override is recorded as its own disposition rather than being forced to `rejected` or `unresolved`, and that honoring is scoped to diff review: a full-repository audit re-derives the stated reason against current source.
+- `ia-code-review` treats a refused, empty, malformed, timed-out, or nonzero-exit external review as unavailable rather than clean, distinguishes an operator's deliberate opt-out from a failure, and caps the run-until-clean loop at two consecutive unavailable results instead of iterating forever.
+- `ia-code-review` excludes credential-bearing paths from any external dispatch unconditionally and by path alone, while keeping them under local review so a committed-secret finding stays reachable.
+- `ia-code-review` grades a defect the specification is silent on by its effect on a reasonable user, requires a quoted specification or pull-request line to invoke the deferred-scope exception, and asks a report's Residual Risks section to itemize every behavior consciously set aside.
+- `ia-verification-before-completion` now states that a checker which failed to run is an error rather than a skip or a clean result, and that a weighted score cannot redistribute a missing category into a full pass or compare a trend across two runs whose checked-category sets differ.
+- `ia-orchestrating-swarms` names two delegation stop conditions: work the caller could finish in a handful of tool calls with no independent-review, concurrency, or context-isolation value, and racing a dispatched task by also running it inline.
+- `ia-agent-native-architecture` documents that a PreToolUse hook fires once per tool call rather than once per batch, so a stateful gate cannot lock a parallel batch, and adds an output-data-minimization principle covering exception text and detection-tool output.
+- `ia-php-laravel` covers the `AuthenticateSession` middleware baselining a session's password hash on first pass rather than at login, which silently defeats logging other devices out when the login route sits outside the middleware, plus lost-connection behavior for Redis pipelines and transactions.
+- `ia-nodejs-backend` documents stream write backpressure, `ia-python-services` covers an awaitable returned into a synchronous dispatch registry, `ia-postgresql` adds plan assertions as regression tests and a bounded per-key snapshot with cursor tailing, and `ia-linux-bash-scripting` requires an agent-launching script to default to its most restrictive approval mode.
+- `ia-writing` produces an Edit-mode changelog only when the caller asks for one and keeps it outside any delivered artifact, and its pull-request guidance gained a reversibility and blast-radius section plus a wider set of visual shapes.
+### Fixed
+- `ia-code-review` accepted a bare passing test name as disproof of a finding, and required an independent re-read only for critical and important severities, so a medium-severity injection or secrets finding could be dropped without one.
+- `ia-code-review` routed only `.py` files to the Python profile, and classed an unused import as a safe automatic deletion with no prompt, which removes a re-exported symbol from a `.pyi` stub. Stub files now route correctly, and the exemption is scoped to self-aliased imports and `__all__` members rather than all unreferenced imports.
+- The `/announce` command gated on a five-dimension writing score removed from `ia-writing` in July, and absent everywhere since. Replaced with the audit output the skill actually returns.
+
 ## [4.6.0] - 2026-09-17
 
 ### Added
