@@ -6,7 +6,7 @@ description: >-
   working with React component structure, state management, Next.js routing,
   Vitest, React Testing Library, or reviewing React code. For visual design and
   aesthetic direction, use frontend-design instead.
-paths: "**/*.tsx,**/*.jsx,**/*.ts"
+paths: "**/*.tsx,**/*.jsx,**/*.ts,**/*.css,**/tailwind.config.*,**/*.html,**/*.vue,**/*.blade.php"
 ---
 
 # React Frontend
@@ -23,7 +23,7 @@ paths: "**/*.tsx,**/*.jsx,**/*.ts"
 
 ## Effects Decision Tree
 
-Effects are escape hatches -- most logic should NOT use effects.
+Effects are escape hatches; most logic should NOT use effects.
 
 | Need | Solution |
 |------|----------|
@@ -35,7 +35,7 @@ Effects are escape hatches -- most logic should NOT use effects.
 | Sync with external system | Effect with cleanup |
 
 **Effect rules:**
-- Never suppress the linter -- fix the code instead
+- Never suppress the linter; fix the code instead
 - Use updater functions (`setItems(prev => [...prev, item])`) to remove state dependencies
 - Move objects/functions inside effects to stabilize dependencies
 - `useEffectEvent` for non-reactive values (e.g., theme in a connection effect)
@@ -45,16 +45,16 @@ Effects are escape hatches -- most logic should NOT use effects.
 
 ## Discipline
 
-- Simplicity first -- every change as simple as possible, impact minimal code
-- Only touch what's necessary -- avoid introducing unrelated changes
-- No hacky workarounds -- if a fix feels wrong, step back and implement the clean solution
+- Simplicity first: every change as simple as possible, impact minimal code
+- Only touch what's necessary; avoid introducing unrelated changes
+- No hacky workarounds: if a fix feels wrong, step back and implement the clean solution
 - Before adding a new abstraction, verify it appears in 3+ places
 
 
 ## References
 
-- [testing.md](./references/testing.md) -- Component, hook, and mocking test examples
-- [e2e-testing.md](./references/e2e-testing.md) -- Playwright E2E patterns
+- [testing.md](./references/testing.md): Component, hook, and mocking test examples
+- [e2e-testing.md](./references/e2e-testing.md): Playwright E2E patterns
 
 
 ## Verify
@@ -69,7 +69,10 @@ Effects are escape hatches -- most logic should NOT use effects.
 Read the relevant reference before implementing or reviewing the matching behavior:
 
 - For component types, state ownership, async races, focus, or cached query behavior: [components-and-state.md](./references/components-and-state.md).
-- For performance, React APIs, Next.js boundaries, caching, or Tailwind integration: [rendering-and-frameworks.md](./references/rendering-and-frameworks.md).
+- For performance, React APIs, Next.js boundaries, or caching: [rendering-and-frameworks.md](./references/rendering-and-frameworks.md).
+- For Tailwind CSS: utilities, `@theme` tokens, CVA/tailwind-variants, dark mode, v3-to-v4 migration, or overflow and `hidden` pitfalls: [tailwind.md](./references/tailwind.md).
 - For component, hook, browser, or integration test changes: [test-selection.md](./references/test-selection.md).
 
 Existing specialized references, when the corresponding topic applies:
+
+- Tailwind details behind [tailwind.md](./references/tailwind.md): [tailwind-configuration.md](./references/tailwind-configuration.md), [tailwind-v3-to-v4.md](./references/tailwind-v3-to-v4.md), [tailwind-class-composition.md](./references/tailwind-class-composition.md), [tailwind-component-patterns.md](./references/tailwind-component-patterns.md), [tailwind-layout-patterns.md](./references/tailwind-layout-patterns.md).

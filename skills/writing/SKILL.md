@@ -16,11 +16,11 @@ Edit human-facing prose while preserving meaning, factual accuracy, and the writ
 
 - **Edit** (default): produce corrected text. Add a changelog only when the caller asks for one; place it outside the returned text, never inside a delivered artifact such as a commit body, PR description, or comment.
 - **Detect**: when asked to flag AI tells without rewriting, quote each observed pattern and give a brief fix. Do not rewrite, score, or infer authorship. Use Phase 1 of [audit-workflow.md](./references/audit-workflow.md), then stop and offer an edit.
-- **Machine-facing text**: tool descriptions, system prompts, skill/agent instructions, error strings, and inter-agent messages need precise specification language. Use `ia-refine-prompt` when appropriate; do not apply fragments, contractions, or invented personal voice mechanically.
+- **Machine-facing text**: tool descriptions, system prompts, skill/agent instructions, error strings, and inter-agent messages need precise specification language. Apply [machine-parsed-text.md](./references/machine-parsed-text.md); do not apply fragments, contractions, or invented personal voice mechanically.
 
 ## Procedure
 
-1. Identify the draft's core point and 3–5 concrete voice signals to preserve: vocabulary, cadence, bluntness, humor, uncertainty, digressions, and intended polish. Keep this working note out of the delivered text.
+1. Identify the draft's core point and 3-5 concrete voice signals to preserve: vocabulary, cadence, bluntness, humor, uncertainty, digressions, and intended polish. Keep this working note out of the delivered text.
 2. Match the requested surface and mode. Short commits, PR descriptions, comments, and posts need a quick audit. Long documents, essays, and reports use the two-phase [audit-workflow.md](./references/audit-workflow.md).
 3. Lead with a concrete fact or point. Use active voice, specific actors where relevant, simple words, stable terminology, and meaningful numbers. Keep related words together, one topic per paragraph, and tone appropriate to the audience.
 4. Flag formulaic structures, vague claims, passive evasions, unnecessary qualifiers, artificial contrasts, synonym cycling, mechanical formatting, and fake-profound endings. A flag is a candidate, not a verdict.
