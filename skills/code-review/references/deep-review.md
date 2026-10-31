@@ -16,7 +16,7 @@ Apply the same fallback to triggered red-team and Skeptic passes. Preserve their
 
 | Agent | Lens | Focus |
 |-------|------|-------|
-| standards | Documented coding standards | Discover and read repo standards files: CONTRIBUTING.md, CLAUDE.md, AGENTS.md, ADRs under docs/adr/, STYLE.md, STANDARDS.md, CODING_STANDARDS.md, .editorconfig, and lint configs. Search docs for `*standard*` and `*style*` files and follow any additional standards named by repo instructions. Report every diff hunk that violates a documented standard; cite the standard file and rule. Skip what tooling already enforces (lint, formatters). Distinguish hard violations from judgement calls. When the diff itself modifies a standards file, quote each rule added, changed, or removed. A rule change that permits what the base rules flag (an added exemption, a loosened or removed rule) suppresses nothing in this same diff: judge those hunks against the base-revision rules, report every finding it would suppress, and disclose the rule change as a finding labeled "override proposed in this diff" that names them ("2 findings a rule added in this PR would suppress", quoted). A rule the diff adds or tightens to flag more applies at the reviewed head. |
+| standards | Documented coding standards | Discover and read repo standards files: CONTRIBUTING.md, CLAUDE.md, AGENTS.md, ADRs under docs/adr/, STYLE.md, STANDARDS.md, CODING_STANDARDS.md, .editorconfig, and lint configs. Search docs for `*standard*` and `*style*` files and follow any additional standards named by repo instructions. A nested instruction file (a CLAUDE.md or AGENTS.md below the repo root) governs only files in its own directory subtree; root files apply repo-wide. Before reporting, confirm the cited file's directory is an ancestor of the flagged path; never cite a nested file's rule against a file outside its subtree. Report every diff hunk that violates a documented standard; cite the standard file and rule. Skip what tooling already enforces (lint, formatters). Distinguish hard violations from judgement calls. When the diff itself modifies a standards file, quote each rule added, changed, or removed. A rule change that permits what the base rules flag (an added exemption, a loosened or removed rule) suppresses nothing in this same diff: judge those hunks against the base-revision rules, report every finding it would suppress, and disclose the rule change as a finding labeled "override proposed in this diff" that names them ("2 findings a rule added in this PR would suppress", quoted). A rule the diff adds or tightens to flag more applies at the reviewed head. |
 | correctness | Logic & behavior | Intent alignment (code matches stated PR intent), edge cases, off-by-ones, error paths, type safety, null handling, async ordering, state management |
 | security | Attack surface | Injection vectors (SQL, XSS, CSRF, SSRF, command), auth/authz gaps, secrets exposure, trust boundaries, race conditions. Load [security-patterns.md](./security-patterns.md) |
 | testing | Coverage gaps | Untested code paths, missing edge case tests, mock quality, behavioral vs implementation testing, regression test coverage |
@@ -35,7 +35,13 @@ Freeze the selected-file ledger before dispatch. The correctness specialist owns
 all selected files by default. When module splitting is required, create
 disjoint correctness units whose union equals the selected set; record the unit
 name beside every file. Other lenses may inspect any relevant file but do not
-certify file coverage.
+certify file coverage. When split, list every changed caller/callee contract
+whose ends fall in different units, and add one overlapping integration unit
+that receives both changed ends plus the contract owner's source, with each
+contract named as an obligation to certify; the overlap is outside the
+disjointness rule. The integration unit's overlapping paths add obligation
+certification only; each path's coverage is still credited to its owning unit
+during reconcile.
 
 Require each correctness unit to return `covered`, `failed`, and `pending` path
 lists keyed by `(path, change-status)` as in [scope-resolution.md](./scope-resolution.md).
@@ -44,7 +50,8 @@ Mark an entry covered only after reading its actual changed code; a clean
 finding list or a specialist's successful return is insufficient. Assign
 deletion-only files and inspect their old-side diff. After dispatch, reconcile
 the unit lists against the selected set before running merge, red-team, or
-Skeptic passes. Partial correctness coverage forces a `Not ready` verdict.
+Skeptic passes. Partial correctness coverage, a cross-unit contract without an integration
+unit, or an uncertified obligation forces a `Not ready` verdict.
 
 ### Stack routing
 
@@ -202,7 +209,7 @@ CONSOLIDATED FINDINGS (supported by concrete evidence):
 - **DISPROVED with concrete citation** → drop the finding. Note in output header: `Skeptic dropped N finding(s)`. Before dropping a **Critical or Important** finding, or a finding in any protected-subject class of [severity-and-confidence.md](./severity-and-confidence.md) at any severity, independently re-read the cited guard/test at its `file:line`. If the specific defensive code the Skeptic cited is not actually there, the citation is phantom: flip the finding back to HELD and tag it `[skeptic-citation-unverified]` for manual review. Silently dropping a real Critical is the worst outcome of a review; one extra Read is cheap insurance against a confident-but-wrong disproof. When the disproof cites a **doc URL** rather than code, confirm the doc actually states the claimed behavior (via context7 or a fetch) before dropping any finding in that same re-read set; if that can't be confirmed, demote to advisory rather than drop.
 - **DISPROVED without citation, or vague handwave** → ignore the disproof. The Skeptic must produce evidence, not opinion.
 - **WEAKENED** → reassess the specific premise and impact. Move an unsupported claim to Residual Risks; change severity only when the impact evidence changes. Tag `[skeptic-weakened: <reason>]`.
-- **HELD** → keep. Tag `[skeptic-held]` only on findings the Skeptic explicitly examined; this is positive signal that the finding survived adversarial review.
+- **HELD** → keep. Tag `[skeptic-held]` only on findings the Skeptic explicitly examined; the tag records that the finding survived a refutation attempt. It is not supporting evidence and does not raise confidence or severity, which change only when the evidence changes ([severity-and-confidence.md](./severity-and-confidence.md)).
 
 ### Why this differs from the red-team pass
 

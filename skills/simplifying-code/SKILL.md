@@ -4,7 +4,8 @@ class: discipline
 description: >-
   Simplifies, polishes, and declutters code without changing behavior. Use when
   asked to simplify, clean up, refactor, declutter, remove dead code or AI slop,
-  or improve readability, including analysis-only simplification reports.
+  or improve readability, including analysis-only simplification reports and
+  code pasted inline.
 ---
 
 # Simplifying Code
@@ -76,6 +77,8 @@ For analysis-only reports, distinguish available evidence from checks required a
 ## Output
 
 For analysis-only requests, report each target's location, proposed change, rationale, behavior risk, and required verification. Label proposals as unimplemented.
+
+For code pasted inline with no file path, return the revised snippet and a brief note of what changed instead of editing files.
 
 After applying simplifications, report:
 - **Scope touched**: files and functions modified

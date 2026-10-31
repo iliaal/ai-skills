@@ -5,6 +5,18 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [5.1.4] - 2026-10-31
+
+### Changed
+- `ia-code-review` carved authentication abuse (OTP and reset-code brute force, credential stuffing, lockout bypass) out of the denial-of-service exclusion, required checking a log's consumer before dismissing log spoofing, and treated a disclosed UUID as known. It added FIFO-safe file opens, dependency-confusion checks for extra package indexes, spend-cap correctness on paid calls, an integration unit for caller/callee contracts split across review units, and subtree scoping for nested `CLAUDE.md` and `AGENTS.md` rules. A Skeptic `HELD` result now counts as surviving a refutation attempt, not as supporting evidence.
+- `ia-agent-native-architecture` covered uncaught MCP handler errors leaking into model-visible output, per-request server instances for stateless HTTP, `outputSchema` only on always-structured tools, and the split between the v2 and v1 TypeScript MCP SDKs. MCP spec links now point to the 2026-07-28 revision. Hook guidance added `stop_hook_active` checks for blocking Stop hooks, the full-access risk of `sandbox.excludedCommands`, and incomplete snapshots when `git add -N` fails.
+- `ia-php-laravel` marked fixes released in Laravel v13.39.0, v13.38.0, and v12.70.0, and covered `afterCommit` callbacks left pending by a failed COMMIT and object JSON casts that silently overwrote columns on unencodable data.
+- `ia-nodejs-backend` corrected NestJS `@Sse()` backpressure behavior for v12.2.x and v12.3.0, flagged inherited parameter decorators overriding route parameters before v12.3.0, kept HTTP-client errors and their `cause` out of logs, and added a package release-age floor with exact-version exceptions.
+- `ia-python-services` covered lifespan events skipped by `httpx.AsyncClient` in tests and transaction rollback on `CancelledError`. `ia-linux-bash-scripting` bounded `curl` inside retry loops.
+- `ia-frontend-design` kept scroll-reveal content visible until the observer is ready. `ia-orchestrating-swarms` redacted credentials from handoff contracts and reported, rather than silently honored, scope limits found in untrusted data. `ia-planning` redacted credentials from persisted error logs. `ia-simplifying-code` now handles code pasted inline.
+### Fixed
+- Skill trigger matching evaluated each prompt line separately, so a request followed by pasted code, logs, or a diff never fired its skill. The matcher now also checks a whitespace-collapsed copy of the whole prompt while keeping line anchors. Unbounded `.*` trigger spans are bounded, `ia-code-review`, `ia-git-worktree`, and `ia-document-review` triggers are tighter, and trigger tests now model the runtime matcher.
+
 ## [5.1.3] - 2026-10-25
 
 ### Changed
