@@ -5,6 +5,19 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [5.1.5] - 2026-11-07
+
+### Changed
+- `ia-php-laravel` flagged `Concurrency::run()` result forgery through task stdout from v12.55.0 through v13.39.0 (fixed in v13.40.0, with no 12.x fix), batch callbacks skipped for jobs whose model was deleted, `cursor()` never arming lazy-loading prevention, and the v13.40.0 commit-id API for cross-request read-your-writes. Distilled rules added Eloquent, fake, and upsert pitfalls and corrected the claim that `Mail::fake()` replaces the transport.
+- `ia-nodejs-backend` covered NestJS v12.4.0 streamed and `Response` bodies bypassing the serializer, missing decorator metadata under tsx and esbuild, the v12.3.3-only `forRoutes()` middleware drop, RPC requests hitting HTTP exception filters, lifecycle-hook order before v12.3.3, and entry-point detection through symlinked bins.
+- `ia-agent-native-architecture` documented that headless `claude -p` skips the trust dialog and still runs a checkout's hooks, `env`, and `.mcp.json` servers, named `--setting-sources ""` and `--strict-mcp-config` for untrusted checkouts, and noted that `--allowedTools` preapproves without restricting. Hook guidance added git `-c` overrides for fsmonitor, hooks, and signature checks, gitlink exclusion from private indexes, and hook-owned deadlines.
+- `ia-code-review` added lifecycle-state writer checks, a Node template-engine row for EJS, Nunjucks, and LiquidJS (including passing request objects as render data), tooling and platform fit, and a deep-review suggestion when a standard pass traces a money, access, or data-loss failure. PR sizing now treats line count as a review-cost signal and suggests a split only for a named gate.
+- `ia-git-worktree` warns that `git worktree prune` follows symlinks planted in the worktrees directory and deletes their targets. `ia-orchestrating-swarms` carries mode, authority, and accepted decisions in handoffs and limits untrusted-text scouts to typed returns plus a bounded Trust Boundary field.
+- `ia-frontend-design` requires a pause control for automatic motion longer than 5 seconds (WCAG 2.2.2), checks reduced-motion end states, and bans success messages for forms with no endpoint. `ia-brainstorming` allows options with a recommendation when the evidence already names the choices. `ia-postgresql` excludes lost-connection COMMITs from blind retries. `ia-debugging` checks provider status before blaming local setup and proposes an always-on signal after a deep investigation. `ia-document-review` judges its Security lens by what named code does.
+- Distilled rules also extended `ia-c-systems` (sanitizers, allocators, ABI floors), `ia-writing-tests`, `ia-linux-bash-scripting`, `ia-rust-systems`, `ia-python-services`, and `ia-md-docs`.
+### Fixed
+- `ia-planning`'s `init-plan.sh` resolved `.plan/` against the current directory, so a rerun from a subdirectory created a second plan and skipped the overwrite guard, and a run from a skill installed inside a git checkout wrote to that checkout's root. It now anchors to the repository root and refuses to run from the skill directory, with regression tests.
+
 ## [5.1.4] - 2026-10-31
 
 ### Changed
