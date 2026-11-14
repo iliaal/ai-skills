@@ -5,6 +5,19 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [5.1.6] - 2026-11-14
+
+### Changed
+- `ia-php-laravel` corrected the `Concurrency::run()` entry (v12.71.0 carries the fix for 12.x) and added unreleased bypasses through v13.42.0: `Rule::exists()`/`Rule::unique()` scope values reparsed as `NULL`, `NOT_NULL`, or `!` operators, `not_regex` passing when `preg_match()` errors, a JSON `0` matching any non-numeric code through `exists` on MySQL, and unescaped bound attributes on `<x-dynamic-component>`. It also covered transaction retries whose `save()` writes nothing, after-response job exceptions swallowed from v13.41.0, PostgreSQL queue workers wedged by a lost `COMMIT`, signed URLs that never expire, and scheduler lock expiry.
+- `ia-nodejs-backend` covered NestJS guards, interceptors, and pipes silently dropped before v12.5.0, route middleware skipped by percent-encoding and case folding, shared-port gateways losing handshake checks, v12.5.0 default size limits, multer options lost to `undefined`, and Fastify's default Ajv options stripping unknown keys and coercing `null`. It corrected two 2026-11-07 passages: per-chunk serialization from v12.5.0 is HTTP-only, and `@Inject()` restores injection but not `ValidationPipe`.
+- `ia-agent-native-architecture` added `-c safe.bareRepository=explicit` to hook Git calls, because a committed bare-repo layout in an untrusted checkout runs its own filter programs under the existing flags. Hook guidance also covers `Bash|PowerShell` matchers, policy loaded from `CLAUDE_PROJECT_DIR` rather than an editable worktree copy, `permissions.denyInsteadOfPrompting`, installed mods that can approve a call a hook denied, and executing only the tools offered in the same request.
+- `ia-code-review` reviews a single commit against its first parent (a merge commit's `git show` hides cleanly merged files), checks path refusals by file identity, lists ML deserialization sinks with a `torch.load` 2.6.0 floor (CVE-2025-32434), requires a `VERDICT:` last line from external reviewers, and passes user-stated limits to every specialist. The standard pass no longer suggests a split on size alone, and its trigger now matches "look over this PR".
+- `ia-orchestrating-swarms` replaced polling in team examples with message-driven wake-ups, accepts a shape-only reformat only when every id and outcome field matches the original, and keeps a unit open when a worker reports a refused, held, or unverified step. Approval gates in `ia-orchestrating-swarms`, `ia-git-worktree`, and `ia-code-review` treat a question that auto-continued on idle as no answer.
+- `ia-debugging` requires repeated model runs on old and new text to verify a fix to a prompt or skill, and names what an early return bypasses. `ia-reflect` tries removal before additive remedies and confirms a cause still exists on the current tree. `ia-verification-before-completion` takes report figures from command output and forbids adding tooling only to verify.
+- `ia-writing` edits only failing spans and adds rules for PR titles and commit subjects. `ia-simplifying-code` differential-tests parallel validators before merging them, treats runtime LLM prompts as behavior, and documents null-check collapse semantics. `ia-postgresql` added version-guarded upserts for replayed events, `ia-linux-bash-scripting` per-PID `wait` with child cleanup, `ia-terraform` write-only secrets, `ia-c-systems` release hardening flags and the FORTIFY `-O0` trap, and `ia-writing-tests` crash-recovery tests that kill a child process.
+### Fixed
+- `ia-test-audit` reporters reject negative row limits.
+
 ## [5.1.5] - 2026-11-07
 
 ### Changed
