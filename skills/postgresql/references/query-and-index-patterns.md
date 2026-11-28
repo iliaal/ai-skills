@@ -17,7 +17,7 @@
 - Case-insensitive identity needs `lower()` on both sides: lowercasing only the input misses stored mixed-case rows. A non-unique `lower(col)` index means `LIMIT 1` needs a tie-break or a reject-on-ambiguity. A later `CREATE UNIQUE INDEX CONCURRENTLY ON t (lower(col))` fails on existing case-variant duplicates and leaves an `INVALID` index behind, so dedupe first (and drop the invalid index before retrying)
 - A GIN index on an array column serves the containment operators, not `=`: `WHERE 'x' = ANY(col)` seq-scans even with `enable_seqscan = off`, because `ANY` over an array expands to equality and no GIN operator class implements it. Write the predicate as `WHERE col @> ARRAY['x']` to reach the index.
 - `fillfactor = 70-90` on write-heavy tables reserves space for HOT updates, reducing index bloat
-- Drop unused indexes (only after one full business cycle since last restart; check `pg_stat_database.stats_reset` first; on a freshly restarted DB or read replica, `idx_scan = 0` reports live indexes, primary keys included, as unused): `SELECT * FROM pg_stat_user_indexes WHERE idx_scan = 0`
+- For unused-index candidates, use [the monitoring query and removal checks](./operations.md#maintenance--monitoring).
 
 **Find foreign keys without a valid unfiltered B-tree key prefix (PostgreSQL 11+):**
 ```sql
@@ -59,6 +59,8 @@ SELECT * FROM items WHERE metadata->>'category' = 'electronics';
 ```
 
 Prefer typed columns over JSONB for frequently queried, well-structured data. Use JSONB for truly dynamic/variable attributes.
+
+When `LEFT JOIN` supplies children for a JSON array, an unmatched parent contributes a NULL-extended child row. To preserve the parent and return `[]` for no children, use `COALESCE(jsonb_agg(to_jsonb(c) ORDER BY c.position, c.id) FILTER (WHERE c.id IS NOT NULL), '[]'::jsonb)` with a non-null child key. Put ordering and a unique tiebreaker inside the aggregate. Exercise a parent with no children and a parent with tied child positions. [PostgreSQL aggregate expressions](https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-AGGREGATES)
 
 Use `jsonb_path_ops` operator class for containment-only (`@>`) queries: 2-3x smaller index. Use default `jsonb_ops` when key-existence (`?`, `?|`) is needed.
 

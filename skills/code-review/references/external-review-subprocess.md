@@ -81,18 +81,32 @@ sandbox starts empty, so supply the unchanged files each change depends on, and
 never truncate or cap the packet silently: partition a large input so every
 change is reviewed against all the context it needs.
 
+Before dispatch, when the transport exposes measurable limits, check that a
+plan covering the full selected scope fits both the encoded request limit and
+the authorized pass count. Measure complete requests, including framing and
+repeated context. Repartition while preserving each change's required context.
+When no complete plan fits, record the pass as `incomplete` and name the
+uncovered scope.
+
+When a verdict must bind to an exact packet digest, verify the digest from
+the bytes received at the reviewer boundary. A sender-side hash alone leaves
+transport transformations unverified. Use a byte-preserving transport and mark
+the pass `incomplete` for that contract if the received bytes cannot be verified.
+
 ## Egress consent: the packet leaves this machine
 
-Delegating to an external CLI sends the diff, and often surrounding source, to
-another vendor's backend. The tool being configured is not consent to transmit a
-particular packet. Before the first dispatch in a session, state what goes out
-(which files, whether full file bodies or diff hunks only, whether logs or fixtures
-are included) and get an explicit go-ahead. Configuration is a capability;
-approval is per-packet. If the diff touches anything the project treats as
-restricted (customer data in fixtures, credentials in config, regulated content),
-name that specifically rather than describing the packet by size. Ask through the
-channel the main skill establishes (`AskUserQuestion` in Claude Code,
-`request_user_input` in Codex, numbered options in chat as the fallback).
+Before each dispatch, check that the caller's explicit approval covers the
+frozen packet and its provider. Approval can cover an identified set of packets
+or retries of the same packet when the recipient, bytes, and dispatch limits
+match. Treat a rebuilt packet after a fix, added review context, or a provider
+change as a new approval decision unless the caller already approved that
+packet. Tool configuration establishes availability only.
+
+When approval is missing, name the provider, files, and whether the packet
+includes full file bodies, diff hunks, logs, or fixtures. Identify any project
+restrictions that apply to the proposed contents. Ask through the channel the
+main skill establishes (`AskUserQuestion` in Claude Code, `request_user_input` in
+Codex, numbered options in chat as the fallback).
 An answer that auto-continued on idle, or a result saying the user may be away
 or nobody answered, is not consent: send nothing, report the dispatch as
 awaiting a decision, and re-ask when the user returns.

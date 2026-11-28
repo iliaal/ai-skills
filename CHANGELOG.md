@@ -5,6 +5,20 @@ All notable changes to ai-skills will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions track the upstream [whetstone plugin](https://github.com/iliaal/whetstone).
 
+## [5.1.8] - 2026-11-28
+
+### Changed
+- `/ia-review`, `ia-code-review`, and `ia-verification-before-completion` tied evidence to the reviewed source and build. `/ia-verify` used the same candidate for gates, tests, and scans, and checked disposable database targets before stateful gates. `/ia-test-browser` inspected target build commands before launch and scoped network evidence to each observed state.
+- `/ia-plan`, `/ia-deepen-plan`, and `/ia-work` returned unresolved choices to the parent during unattended runs. Proposed ADRs stayed pending until accepted, and final acceptance checked the criteria saved at intake. `ia-orchestrating-swarms` checked complete write scopes and waited for a worker to stop before reassigning its files.
+- `ia-agent-native-architecture` checked permissions at external tool and publication boundaries, hashed exact UTF-8 file bytes for revisions, and persisted acceptance evidence with terminal checkpoints. `ia-debugging` checked report-supplied commands before running them, and `ia-writing` reserved issue-closing references for fully verified fixes.
+- `ia-postgresql` corrected online backfill, WAL retry, failover, row-locking, and index cleanup guidance. `ia-php-laravel` distinguished atomic migration recovery from partial nontransactional retries. `ia-terraform` routed refresh-only changes and replacements through saved, reviewed plans.
+- `ia-c-systems` corrected buffer bounds, callback reentry, and Zend teardown guidance. `ia-cpp-systems` made UBSan diagnostics fail the documented CTest run. `ia-rust-systems` corrected an Axum tracing example and bounded Tokio task admission.
+- `ia-nodejs-backend` and `ia-python-services` used project-declared verification commands. `ia-pinescript` scoped backtesting to strategies. `ia-react-frontend` preserved empty cached results after a failed refetch and kept browser auth state out of version control. `ia-linux-bash-scripting` corrected the sourceable starter and daemon readiness example.
+### Fixed
+- `ia-planning` serialized and atomically published new plans so competing initializers could not erase open work. `ia-git-worktree` suppressed checkout hooks for untrusted revisions and used a local Git exclude for scratch paths.
+- `ia-test-audit` excluded skipped JavaScript tests as replacements for active tests, reported ambiguous JUnit file matches, and preserved subprocess results when probe logging failed. Guard detection recognized asserted message templates in order, and relative test paths resolved from their test file. `ia-writing-tests` checked patch equivalence at one base and protected shared services from test resets.
+- `ia-postgresql` stopped activating on generic upsert requests. `ia-code-review` stopped activating on incidental reviewer and hyphenated identifier mentions. A delayed optional Jev call could no longer consume the time reserved for sending keyword matches.
+
 ## [5.1.7] - 2026-11-21
 
 ### Changed
